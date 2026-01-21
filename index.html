@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>保險需求導航系統</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        h1, h2 { text-align: center; color: var(--primary); margin-bottom: 20px; }
+        p { text-align: center; color: #666; margin-bottom: 30px; line-height: 1.6; }
+
+        .progress-bar {
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+            line-height: 1.4;
+            color: #444;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent);
+            background-color: #f0f8ff;
+        }
+
+        .option-btn:active {
+            transform: scale(0.99);
+        }
+
+        .step { display: none; animation: fadeIn 0.4s; }
+        .step.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .nav-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .nav-btn:hover { background-color: #1a252f; }
+        
+        #loading-spinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+    <div id="step-intro" class="step active">
+        <h2>📋 保險需求導航</h2>
+        <p>這是一份協助您釐清價值觀的互動問卷。<br>請直覺回答，沒有標準答案。</p>
+        
+        <label style="display:block; margin-bottom:8px; font-weight:bold;">您的姓名/稱呼</label>
+        <input type="text" id="clientName" placeholder="請輸入姓名">
+        
+        <label style="display:block; margin-bottom:8px; font-weight:bold;">這次的規劃對象是？</label>
+        <div id="target-selection">
+            <button class="option-btn" onclick="selectTarget('self')">A. 只有我自己</button>
+            <button class="option-btn" onclick="selectTarget('family')">B. 只有家人（父母/子女）</button>
+            <button class="option-btn" onclick="selectTarget('both')">C. 兩者都要（我 + 家人）</button>
+        </div>
+    </div>
+
+    <div id="step-question" class="step">
+        <h4 id="q-category" style="text-align:center; color:#999; margin-bottom:5px; font-weight:normal;">類別</h4>
+        <p id="q-text" style="font-size: 1.3em; font-weight: bold; color: #2c3e50; margin-top:0;">問題內容</p>
+        <div id="q-options"></div>
+    </div>
+
+    <div id="step-transition" class="step">
+        <h2>🎉 第一階段完成</h2>
+        <p>您個人的需求分析已記錄。</p>
+        <p>接下來將進入「家人保障」的需求檢核。</p>
+        <button class="nav-btn" onclick="startFamilyPhase()">繼續填寫家人部分 ➔</button>
+    </div>
+
+    <div id="step-result" class="step">
+        <div id="final-message">
+            <h2>🔄 資料處理中</h2>
+            <p>正在分析您的需求偏好並傳送至系統...</p>
+            <div id="loading-spinner">⏳ 上傳中...</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // 🔴 你的 Google Script 網址 (已整合)
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwNNc9BZ0AJzTGGYK4cnqAsuA78FtWMuuVoJMmn4hZpOSWuVCy0N6eLyPk-h414ZkJD/exec';
+
+    // === 題庫資料 (完整版 20+20) ===
+    
+    // 自我規劃題庫
+    const questionsSelf = [
+        // 第一階段：生存焦慮 (1-10)
+        { cat: "【自我】生存焦慮", q: "關於未來的風險，你最害怕發生哪種狀況？", a: "活得太久，但錢不夠用（怕老/病）", b: "走得太早，責任沒人扛（怕死/責任）", tag: "A:生存風險 vs B:責任風險" },
+        { cat: "【自我】生存焦慮", q: "如果身體出狀況，你最無法接受的是？", a: "生活品質被迫下降", b: "存款積蓄瞬間歸零", tag: "A:品質導向 vs B:資產保全" },
+        { cat: "【自我】生存焦慮", q: "對你來說，買保險是為了？", a: "生病時有更好的治療選擇", b: "不能工作時，薪水能被填補", tag: "A:醫療權 vs B:收入權" },
+        { cat: "【自我】生存焦慮", q: "如果只能先解決一個擔憂，你會優先處理？", a: "需長期被人照顧，失去尊嚴", b: "突然罹患重病，措手不及", tag: "A:長照失能 vs B:重大傷病" },
+        { cat: "【自我】生存焦慮", q: "想像生病時，哪種壓力會讓你更焦慮？", a: "每月固定的長期開銷（房貸/看護）", b: "初期的一大筆手術或器材費", tag: "A:持續壓力 vs B:瞬間壓力" },
+        { cat: "【自我】生存焦慮", q: "不想拖累家人，你是指？", a: "不想讓家人花時間或體力照顧我", b: "不想讓家人拿錢出來幫我付醫藥費", tag: "A:長照日額 vs B:實支一次金" },
+        { cat: "【自我】生存焦慮", q: "對於未知的風險，你傾向的策略是？", a: "細水長流，每個月有錢進來讓我運用", b: "乾脆俐落，直接給我一筆錢讓我自己看著辦", tag: "A:年金月給付 vs B:一次給付" },
+        { cat: "【自我】生存焦慮", q: "如果真的發生失能狀況，你希望？", a: "確保每個月有錢請人照顧", b: "先拿一筆錢改善居家環境或應急", tag: "A:持續給付 vs B:一次給付" },
+        { cat: "【自我】生存焦慮", q: "你比較喜歡哪種「安全感」？", a: "像領薪水一樣，源源不絕的穩定感", b: "像中樂透一樣，手握大筆資金的掌握感", tag: "A:持續型 vs B:啟動型" },
+        { cat: "【自我】生存焦慮", q: "這次規劃的最終目標，你希望達成？", a: "讓我的未來生活水準「撐得住」", b: "讓突發的意外打擊「不致命」", tag: "A:撐時間型 vs B:擋災難型" },
+        
+        // 第二階段：使用情境 (11-20)
+        { cat: "【自我】使用情境", q: "如果必須住院，你比較在意？", a: "升等病房差額、薪水損失能補回來", b: "自費藥物、手術耗材費用夠不夠付", tag: "A:日額慰問 vs B:實支實付" },
+        { cat: "【自我】使用情境", q: "以你目前的工作與生活型態，你覺得哪個機率高？", a: "身體機能退化、慢性病、文明病", b: "外出通勤風險、運動傷害、意外事故", tag: "A:醫療型 vs B:意外型" },
+        { cat: "【自我】使用情境", q: "如果需要休養 3 個月不能工作，你希望？", a: "保險理賠能按月彌補我的薪水損失", b: "保險直接賠一筆錢，當作緊急預備金", tag: "A:日額失能 vs B:一次金" },
+        { cat: "【自我】使用情境", q: "哪一種情境比較容易發生在你身上？", a: "因為健康問題，反覆進出醫院檢查治療", b: "因為突發意外，需要一次性的手術或復健", tag: "A:醫療型 vs B:意外型" },
+        { cat: "【自我】使用情境", q: "如果醫療行為需要長期抗戰，你偏好？", a: "每次回診、治療都有錢拿（感覺沒虧）", b: "確診當下就拿一大筆錢（落袋為安）", tag: "A:療程型 vs B:重大傷病" },
+        { cat: "【自我】使用情境", q: "你對「實用」的定義是？", a: "理賠頻率高，小病小痛都能賠", b: "理賠金額大，發生大事才啟動", tag: "A:廣度醫療 vs B:深度重大" },
+        { cat: "【自我】使用情境", q: "如果生病了，你最擔心影響到？", a: "我的職涯發展與工作收入", b: "我的存款水位與投資計劃", tag: "A:薪資補償 vs B:高額醫療" },
+        { cat: "【自我】使用情境", q: "如果只能選一種住院保障？", a: "住幾天賠幾天（定額）", b: "花多少賠多少（實支）", tag: "A:住院日額 vs B:實支實付" },
+        { cat: "【自我】使用情境", q: "直覺上，你覺得自己未來 5 年內？", a: "看醫生的頻率會變高", b: "遇到意外的風險會變高", tag: "A:醫療優先 vs B:意外優先" },
+        { cat: "【自我】使用情境", q: "最後決策，如果預算有限，你想先保住？", a: "每天的生活費與照顧費", b: "高昂的醫療費與手術費", tag: "A:長照日額 vs B:實支重大" }
+    ];
+
+    // 家人規劃題庫
+    const questionsFamily = [
+        // 第一階段：照顧責任 (1-10)
+        { cat: "【家人】照顧責任", q: "當家人生病時，你最擔心的衝擊是？", a: "漫長的照顧過程，錢像無底洞", b: "突然的一場大病，拿不出急用金", tag: "A:長期錢坑 vs B:急用缺口" },
+        { cat: "【家人】照顧責任", q: "考量到你的工作與生活，你比較怕？", a: "家人病況拖很久，需要長期抗戰", b: "狀況發生得太突然，措手不及", tag: "A:長照風險 vs B:突發風險" },
+        { cat: "【家人】照顧責任", q: "作為照顧者，保險對你最重要的功能是？", a: "每個月有錢進來，讓我能請看護（買時間）", b: "事情發生時有一筆錢，讓我好辦事（買資源）", tag: "A:買人力時間 vs B:買醫療資源" },
+        { cat: "【家人】照顧責任", q: "如果必須做出選擇，你會優先處理？", a: "未來可能發生的失智、失能（長期依賴）", b: "癌症、腦中風等重大傷病（急需治療）", tag: "A:長照失能 vs B:醫療重大" },
+        { cat: "【家人】照顧責任", q: "對於家人的健康風險，你比較怕哪種壓力？", a: "像房貸一樣，每個月都要支出的壓力", b: "像炸彈一樣，一次爆開的巨額支出", tag: "A:月給付需求 vs B:一次金需求" },
+        { cat: "【家人】照顧責任", q: "規劃這份保單，你最不想看到的情況是？", a: "為了照顧家人，我也被迫辭職或影響生活", b: "為了救治家人，必須變賣資產或借錢", tag: "A:薪資補償 vs B:高額醫療" },
+        { cat: "【家人】照顧責任", q: "如果家人需要人照顧，目前的家庭狀況是？", a: "人力吃緊，必須花錢請看護或住機構", b: "人力可照顧，但需要錢補貼家用", tag: "A:強調月給付 vs B:強調一筆金" },
+        { cat: "【家人】照顧責任", q: "對於不確定性，你傾向？", a: "把風險拉長，分擔未來的每個月開銷", b: "把風險集中，當下解決最大的資金缺口", tag: "A:撐時間型 vs B:一次給付型" },
+        { cat: "【家人】照顧責任", q: "你覺得哪種理賠方式，對家庭和諧比較有幫助？", a: "定期給付，專款專用付給照顧者/機構", b: "一次給付，由家人開會討論如何運用", tag: "A:避免爭議型 vs B:靈活運用型" },
+        { cat: "【家人】照顧責任", q: "整體來說，你希望這份保單能幫你？", a: "讓這場照顧馬拉松跑得完", b: "讓這場突發災難能過關", tag: "A:續航力 vs B:爆發力" },
+
+        // 第二階段：使用情境 (11-20)
+        { cat: "【家人】使用情境", q: "如果家人住院，你比較希望？", a: "每天有一筆固定金額，補貼看護費或營養金", b: "憑收據理賠，花多少賠多少，不用擔心藥費", tag: "A:住院日額 vs B:實支實付" },
+        { cat: "【家人】使用情境", q: "以這位家人的年紀與體況，你覺得哪個風險高？", a: "自然老化、退化、慢性疾病", b: "跌倒、骨折、交通事故等意外", tag: "A:疾病型 vs B:意外型" },
+        { cat: "【家人】使用情境", q: "如果住院 7~10 天，你比較在意？", a: "請看護一天 3000 元的費用能不能被涵蓋", b: "醫生建議的自費手術/醫材費能不能付得起", tag: "A:日額型 vs B:實支型" },
+        { cat: "【家人】使用情境", q: "哪一種狀況你比較能想像發生在他/她身上？", a: "因為疾病，反覆進出醫院治療", b: "因為一次意外，需要休養復原", tag: "A:醫療型 vs B:意外型" },
+        { cat: "【家人】使用情境", q: "如果家人需要長期治療（如洗腎、復健），你希望？", a: "每次去醫院都有錢領（補貼車資/掛號）", b: "確診當下拿一大筆錢（讓我們自己規劃）", tag: "A:療程型 vs B:一次給付" },
+        { cat: "【家人】使用情境", q: "這份保單對你來說，怎麼樣才算「有用」？", a: "只要有住院或手術就能賠，感覺比較安心", b: "只有發生大事才賠沒關係，但要賠得夠多", tag: "A:高頻率醫療 vs B:高保額重大" },
+        { cat: "【家人】使用情境", q: "你覺得哪一種狀況，比較容易打亂你的生活節奏？", a: "家人生病，需要頻繁接送陪診", b: "突然發生意外，需要緊急處理事務", tag: "A:醫療看護 vs B:意外急難" },
+        { cat: "【家人】使用情境", q: "如果只能選一種住院保障給家人？", a: "不管花多少，有住院就給錢（定額）", b: "只有符合健保不給付的項目才賠（實支）", tag: "A:感覺型日額 vs B:實用型實支" },
+        { cat: "【家人】使用情境", q: "直覺來看，你覺得哪種機率比較高？", a: "醫療需求隨著年紀慢慢增加", b: "意外事件突然發生", tag: "A:醫療重於意外 vs B:意外重於醫療" },
+        { cat: "【家人】使用情境", q: "最後決策，如果只能先補一塊拼圖，你會選？", a: "跟「住院、生病治療」直接相關的", b: "跟「失能、需要人照顧」直接相關的", tag: "A:短期醫療 vs B:長期照護" }
+    ];
+
+    // === 程式邏輯 (Engine) ===
+    let currentMode = ''; 
+    let currentQueue = []; 
+    let answers = []; 
+    let currentIndex = 0;
+    let doingFamilyAfterSelf = false; 
+
+    function selectTarget(mode) {
+        const name = document.getElementById('clientName').value;
+        if (!name) { alert("請先輸入您的稱呼"); return; }
+        
+        currentMode = mode;
+        document.getElementById('step-intro').classList.remove('active');
+        document.getElementById('step-question').classList.add('active');
+        
+        if (mode === 'self' || mode === 'both') {
+            currentQueue = questionsSelf;
+        } else {
+            currentQueue = questionsFamily;
+        }
+        
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentIndex >= currentQueue.length) {
+            handleQueueFinish();
+            return;
+        }
+
+        const qData = currentQueue[currentIndex];
+        document.getElementById('q-category').innerText = qData.cat;
+        
+        // 題號顯示邏輯
+        let displayNum = currentIndex + 1;
+        document.getElementById('q-text').innerText = displayNum + ". " + qData.q;
+        
+        // 進度條
+        const progress = ((currentIndex) / currentQueue.length) * 100;
+        document.getElementById('progress').style.width = progress + "%";
+
+        const optionsHTML = `
+            <button class="option-btn" onclick="saveAnswer('A', '${qData.tag}', '${qData.a}')">A. ${qData.a}</button>
+            <button class="option-btn" onclick="saveAnswer('B', '${qData.tag}', '${qData.b}')">B. ${qData.b}</button>
+        `;
+        document.getElementById('q-options').innerHTML = optionsHTML;
+    }
+
+    function saveAnswer(choice, tag, detail) {
+        const qData = currentQueue[currentIndex];
+        answers.push({
+            q: qData.q,
+            choice: choice,
+            detail: detail,
+            tag: tag
+        });
+
+        currentIndex++;
+        loadQuestion();
+    }
+
+    function handleQueueFinish() {
+        if (currentMode === 'both' && !doingFamilyAfterSelf) {
+            doingFamilyAfterSelf = true;
+            document.getElementById('step-question').classList.remove('active');
+            document.getElementById('step-transition').classList.add('active');
+        } else {
+            submitData();
+        }
+    }
+
+    function startFamilyPhase() {
+        document.getElementById('step-transition').classList.remove('active');
+        document.getElementById('step-question').classList.add('active');
+        currentQueue = questionsFamily;
+        currentIndex = 0;
+        loadQuestion();
+    }
+
+    function submitData() {
+        document.getElementById('step-question').classList.remove('active');
+        document.getElementById('step-result').classList.add('active');
+        document.getElementById('loading-spinner').style.display = 'block';
+
+        const name = document.getElementById('clientName').value;
+        
+        // 整理分析文字
+        let analysisText = "";
+        answers.forEach((item, index) => {
+            analysisText += `${index + 1}. [${item.choice}] ${item.detail} (${item.tag})\n`;
+        });
+
+        let formData = {
+            name: name,
+            mode: currentMode,
+            analysis: analysisText
+        };
+
+        // 傳送至 Google Sheet
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(formData)
+        })
+        .then(() => {
+            // 成功訊息
+            document.getElementById('final-message').innerHTML = `
+                <div style="text-align:center; padding: 20px;">
+                    <h2 style="color: #27ae60; font-size:3em; margin:0;">✅</h2>
+                    <h2 style="color: #27ae60;">提交成功！</h2>
+                    <p>感謝您的填寫。</p>
+                    <p>顧問已收到您的需求分析，<br>將儘速為您規劃專屬方案。</p>
+                    <button class="nav-btn" onclick="location.reload()" style="background:#95a5a6; margin-top:20px;">關閉或填寫下一份</button>
+                </div>
+            `;
+        })
+        .catch(error => {
+            document.getElementById('final-message').innerHTML = `<h2 style="color:red">傳送失敗</h2><p>請檢查網路連線</p>`;
+        });
+    }
+</script>
+
+</body>
+</html>
