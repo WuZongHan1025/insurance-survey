@@ -94,7 +94,7 @@
             font-size: 0.95em;
         }
 
-        input[type="text"] {
+        input[type="text"], input[type="tel"] {
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
@@ -153,7 +153,7 @@
         <h2>📋 保險需求導航</h2>
         <p>這是一份協助您釐清價值觀的互動問卷。<br>請填寫基本資料以利準確分析。</p>
         
-        <label>客戶姓名</label>
+        <label>輸入你尊貴的大名</label>
         <input type="text" id="clientName" placeholder="請輸入姓名">
         
         <label>生理性別</label>
@@ -162,10 +162,10 @@
             <label class="radio-label"><input type="radio" name="clientSex" value="女"> 女</label>
         </div>
 
-        <label>出生年月日 (如：民國75/01/01)</label>
-        <input type="text" id="clientDob" placeholder="民國 年 月 日">
+        <label>出生年月日 (如：西元1986/01/01請輸入19860101)</label>
+        <input type="tel" id="clientDob" placeholder="19860101" maxlength="8">
 
-        <label>目前職業(如果是斜槓人，拜託把所有職業都寫喔！)</label>
+        <label>目前職業(如果是斜槓人，把所有職業都寫喔！)</label>
         <input type="text" id="clientJob" placeholder="例如：軟體工程師、行政人員">
         
         <div style="border-top: 1px dashed #ccc; margin: 30px 0 20px 0;"></div>
@@ -176,6 +176,12 @@
             <button class="option-btn" onclick="selectTarget('family')">B. 家人</button>
             <button class="option-btn" onclick="selectTarget('both')">C. 兩者都要（我 + 家人）</button>
         </div>
+    </div>
+
+    <div id="step-question" class="step">
+        <h4 id="q-category" style="text-align:center; color:#999; margin-bottom:5px; font-weight:normal;">類別</h4>
+        <p id="q-text" style="font-size: 1.3em; font-weight: bold; color: #2c3e50; margin-top:0;">問題內容</p>
+        <div id="q-options"></div>
     </div>
 
     <div id="step-transition" class="step">
@@ -263,9 +269,22 @@
     let doingFamilyAfterSelf = false; 
 
     function selectTarget(mode) {
-        const name = document.getElementById('clientName').value;
-        if (!name) { alert("請先輸入您的稱呼"); return; }
+        // --- 🔒 防呆驗證區 (檢查是否有漏填) ---
+        const name = document.getElementById('clientName').value.trim();
+        const dob = document.getElementById('clientDob').value.trim();
+        const job = document.getElementById('clientJob').value.trim();
         
+        // 取得性別單選值
+        const sexEls = document.getElementsByName('clientSex');
+        let sex = '';
+        for(let el of sexEls) { if(el.checked) sex = el.value; }
+
+        if (!name || !sex || !dob || !job) {
+            alert("⚠️ 請輸入尊貴的大名、性別、生日與職業，我們才能開始分析喔！");
+            return;
+        }
+        // ---------------------
+
         currentMode = mode;
         document.getElementById('step-intro').classList.remove('active');
         document.getElementById('step-question').classList.add('active');
@@ -334,13 +353,19 @@
         loadQuestion();
     }
 
-    // === 🌟 智慧分析核心邏輯 (Fixed & Upgraded) ===
+    // === 🌟 智慧分析核心邏輯 (包含抓取新欄位) ===
     function submitData() {
         document.getElementById('step-question').classList.remove('active');
         document.getElementById('step-result').classList.add('active');
         document.getElementById('loading-spinner').style.display = 'block';
 
-        const name = document.getElementById('clientName').value;
+        // 🟢 這裡是你之前漏掉的關鍵：要把 HTML 輸入框的值抓進來
+        const name = document.getElementById('clientName').value.trim();
+        const dob = document.getElementById('clientDob').value.trim();
+        const job = document.getElementById('clientJob').value.trim();
+        const sexEls = document.getElementsByName('clientSex');
+        let sex = '';
+        for(let el of sexEls) { if(el.checked) sex = el.value; }
 
         // 1. 初始化計分器
         let self_p1_A = 0, self_p1_B = 0;
@@ -349,12 +374,11 @@
         let fam_p2_A = 0, fam_p2_B = 0;
         let keywords = [];
 
-        // 2. 智慧遍歷答案 (解決索引混淆問題)
+        // 2. 智慧遍歷答案
         answers.forEach((item, index) => {
             let isSelfQuestion = false;
             let isPhase1 = false;
 
-            // 判斷這一題是屬於「自己」還是「家人」
             if (currentMode === 'self') {
                 isSelfQuestion = true;
                 isPhase1 = (index < 10);
@@ -367,7 +391,7 @@
                     isPhase1 = (index < 10);
                 } else { // 後20題是家人
                     isSelfQuestion = false;
-                    isPhase1 = (index < 30); // 20-29 是家人第一階段
+                    isPhase1 = (index < 30);
                 }
             }
 
@@ -386,7 +410,7 @@
                 }
             }
 
-            // 抓取關鍵字 (只抓選中的那邊)
+            // 抓取關鍵字
             let tagParts = item.tag.split('vs');
             let keyTag = (item.choice === 'A') ? tagParts[0] : tagParts[1];
             if(keyTag) {
@@ -395,10 +419,12 @@
             }
         });
 
-        // 3. 生成報告文字 (Modular Report)
+        // 3. 生成報告文字 (🟢 把性別、生日、職業 放進報告表頭)
         let finalReport = `【📊 保險需求分析報告】\n`;
         finalReport += `===================================\n`;
-        finalReport += `🧑 客戶：${name} | 模式：${currentMode === 'self' ? '自我' : (currentMode === 'family' ? '家人' : '混合')}\n\n`;
+        // 這裡確保了 Google Sheet 會收到完整資訊
+        finalReport += `🧑 客戶：${name} (${sex}) | 生日：${dob} | 職業：${job}\n`;
+        finalReport += `📋 模式：${currentMode === 'self' ? '自我' : (currentMode === 'family' ? '家人' : '混合')}\n\n`;
         
         // --- 生成【自我規劃】區塊 ---
         if (currentMode === 'self' || currentMode === 'both') {
@@ -409,14 +435,12 @@
 
             finalReport += `📌 【自我規劃分析Result】\n`;
             
-            // P1 結論
             if (self_p1_A > self_p1_B) {
                 finalReport += `👉 生存焦慮：偏向【持續/生存型】(A:${s1_pct}%)\n   💡 洞察：重視尊嚴與現金流。建議：失能/長照/年金。\n`;
             } else {
                 finalReport += `👉 生存焦慮：偏向【一次/責任型】(B:${100-s1_pct}%)\n   💡 洞察：重視資產保全。建議：壽險/一次金/預留稅源。\n`;
             }
 
-            // P2 結論
             if (self_p2_A > self_p2_B) {
                 finalReport += `👉 使用情境：偏向【醫療/日額型】(A:${s2_pct}%)\n   💡 洞察：在意填補損失。建議：高額實支/日額。\n`;
             } else {
@@ -434,14 +458,12 @@
 
             finalReport += `📌 【家人規劃分析Result】\n`;
             
-            // P1 結論
             if (fam_p1_A > fam_p1_B) {
                 finalReport += `👉 照顧責任：偏向【持久戰型】(A:${f1_pct}%)\n   💡 洞察：怕長期燒錢。建議：長照險/失能險。\n`;
             } else {
                 finalReport += `👉 照顧責任：偏向【急救金型】(B:${100-f1_pct}%)\n   💡 洞察：怕突發缺口。建議：重大傷病/癌症一次金。\n`;
             }
 
-            // P2 結論
             if (fam_p2_A > fam_p2_B) {
                 finalReport += `👉 使用情境：偏向【補貼/醫療型】(A:${f2_pct}%)\n   💡 洞察：在意看護費/日額補貼。\n`;
             } else {
@@ -453,11 +475,6 @@
         finalReport += `\n【🔥 客戶痛點標籤】\n${keywords.join("、")}\n`;
         finalReport += `===================================\n`;
         
-        /* 如果需要原始資料對照，可以打開下面這行註解，
-           但在後台看報告通常上面那些就夠了。
-        */
-        // finalReport += `\n[原始答題數據]\n...`;
-
         // 4. 打包傳送
         let formData = {
             name: name,
