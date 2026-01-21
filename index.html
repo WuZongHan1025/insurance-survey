@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>保險需求導航系統</title>
+    <title>保險需求權重分析</title>
     <style>
         :root {
             --primary: #2c3e50;
-            --accent: #3498db;
-            --bg: #f5f7fa;
+            --accent: #e74c3c;
+            --selected: #27ae60;
+            --bg: #f8f9fa;
             --card-bg: #ffffff;
             --text: #333;
         }
@@ -29,20 +30,20 @@
             background-color: var(--card-bg);
             width: 100%;
             max-width: 600px;
-            padding: 40px;
+            padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             position: relative;
         }
 
-        h1, h2 { text-align: center; color: var(--primary); margin-bottom: 20px; }
-        p { text-align: center; color: #666; margin-bottom: 30px; line-height: 1.6; }
+        h1, h2, h3 { text-align: center; color: var(--primary); margin-bottom: 15px; }
+        p { text-align: center; color: #666; margin-bottom: 25px; line-height: 1.6; }
 
         .progress-bar {
             height: 6px;
             background: #eee;
             border-radius: 3px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             overflow: hidden;
         }
         .progress-fill {
@@ -52,29 +53,61 @@
             transition: width 0.3s ease;
         }
 
-        .option-btn {
-            display: block;
-            width: 100%;
-            padding: 15px 20px;
-            margin-bottom: 15px;
-            border: 2px solid #e0e0e0;
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; font-size: 0.9em; }
+        input[type="text"], input[type="tel"] {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            border: 1px solid #ddd; border-radius: 6px; font-size: 16px;
+            box-sizing: border-box; background: #fff;
+        }
+
+        /* 排序題專用樣式 */
+        .rank-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .rank-slot {
+            background: #f0f2f5;
+            border: 2px dashed #cbd5e0;
             border-radius: 8px;
-            background: white;
-            text-align: left;
-            cursor: pointer;
+            padding: 15px;
+            text-align: center;
+            color: #888;
+            font-weight: bold;
+            position: relative;
+            min-height: 24px;
             transition: all 0.2s;
-            font-size: 16px;
-            line-height: 1.4;
-            color: #444;
+        }
+        
+        .rank-slot.filled {
+            background: #e3f9e5;
+            border: 2px solid var(--selected);
+            color: var(--selected);
+            cursor: pointer;
         }
 
-        .option-btn:hover {
-            border-color: var(--accent);
-            background-color: #f0f8ff;
+        .rank-label {
+            position: absolute;
+            left: 10px; top: 50%; transform: translateY(-50%);
+            font-size: 0.8em; color: #aaa; font-weight: normal;
         }
 
-        .option-btn:active {
-            transform: scale(0.99);
+        .option-pool { display: grid; gap: 10px; }
+
+        .option-card {
+            background: white; border: 1px solid #ddd; padding: 15px;
+            border-radius: 8px; cursor: pointer; text-align: left;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.2s;
+        }
+
+        .option-card:hover { transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+        .option-card.hidden { display: none; } 
+
+        .badge {
+            display: inline-block; background: #eee; font-size: 0.75em;
+            padding: 2px 6px; border-radius: 4px; margin-right: 5px; color: #666;
         }
 
         .step { display: none; animation: fadeIn 0.4s; }
@@ -85,63 +118,19 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 輸入框樣式優化 */
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #2c3e50;
-            font-size: 0.95em;
+        .nav-btn {
+            background-color: var(--primary); color: white; border: none;
+            padding: 12px 30px; border-radius: 6px; font-size: 16px;
+            cursor: pointer; width: 100%; margin-top: 10px;
+            opacity: 0.5; pointer-events: none; transition: all 0.3s;
         }
+        .nav-btn.ready { opacity: 1; pointer-events: auto; background-color: var(--accent); }
 
-        input[type="text"], input[type="tel"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            box-sizing: border-box;
-            background: #fafafa;
-        }
-        
-        /* 性別選擇樣式 */
-        .radio-group {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .radio-label {
-            display: flex;
-            align-items: center;
-            font-weight: normal;
-            cursor: pointer;
-            background: #fafafa;
-            padding: 10px 20px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
+        .radio-group { display: flex; gap: 20px; margin-bottom: 15px; }
+        .radio-label { display: flex; align-items: center; cursor: pointer; background: #fff; padding: 10px 20px; border: 1px solid #ddd; border-radius: 6px; width: 100%; }
         .radio-label input { margin-right: 8px; }
 
-        .nav-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-            transition: background 0.3s;
-        }
-        .nav-btn:hover { background-color: #1a252f; }
-        
-        #loading-spinner {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
+        #loading-spinner { display: none; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -150,51 +139,58 @@
     <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 
     <div id="step-intro" class="step active">
-        <h2>📋 保險需求導航</h2>
-        <p>這是一份協助您釐清價值觀的互動問卷。<br>請填寫基本資料以利準確分析。</p>
+        <h2>📊 保險權重分析</h2>
+        <p>這份問卷將透過排序法，<br>精準分析您對各項保障的重視程度。</p>
         
-        <label>輸入你尊貴的大名</label>
+        <label>姓名</label>
         <input type="text" id="clientName" placeholder="請輸入姓名">
         
-        <label>生理性別</label>
+        <label>性別</label>
         <div class="radio-group">
             <label class="radio-label"><input type="radio" name="clientSex" value="男"> 男</label>
             <label class="radio-label"><input type="radio" name="clientSex" value="女"> 女</label>
         </div>
 
-        <label>出生年月日 (如：西元1986/01/01請輸入19860101)</label>
-        <input type="tel" id="clientDob" placeholder="19860101" maxlength="8">
+        <label>生日 (如：19860101)</label>
+        <input type="tel" id="clientDob" placeholder="YYYYMMDD" maxlength="8">
 
-        <label>目前職業(如果是斜槓人，把所有職業都寫喔！)</label>
-        <input type="text" id="clientJob" placeholder="例如：軟體工程師、行政人員">
+        <label>職業</label>
+        <input type="text" id="clientJob" placeholder="例如：工程師">
+
+        <label>聯絡方式 (手機 / Line ID)</label>
+        <input type="text" id="clientContact" placeholder="請輸入手機號碼或 Line ID">
         
-        <div style="border-top: 1px dashed #ccc; margin: 30px 0 20px 0;"></div>
+        <div style="border-top: 1px dashed #ccc; margin: 25px 0;"></div>
 
-        <label style="font-size: 1.1em; color: #e67e22;">這次的規劃對象是？</label>
-        <div id="target-selection">
-            <button class="option-btn" onclick="selectTarget('self')">A. 只有我自己</button>
-            <button class="option-btn" onclick="selectTarget('family')">B. 家人</button>
-            <button class="option-btn" onclick="selectTarget('both')">C. 兩者都要（我 + 家人）</button>
+        <label style="color: var(--accent); font-size: 1.1em;">規劃對象</label>
+        <div class="option-pool">
+            <button class="option-card" style="text-align:center; font-weight:bold;" onclick="selectTarget('self')">A. 只有我自己</button>
+            <button class="option-card" style="text-align:center; font-weight:bold;" onclick="selectTarget('family')">B. 只有家人</button>
+            <button class="option-card" style="text-align:center; font-weight:bold;" onclick="selectTarget('both')">C. 兩者都要</button>
         </div>
     </div>
 
     <div id="step-question" class="step">
-        <h4 id="q-category" style="text-align:center; color:#999; margin-bottom:5px; font-weight:normal;">類別</h4>
-        <p id="q-text" style="font-size: 1.3em; font-weight: bold; color: #2c3e50; margin-top:0;">問題內容</p>
-        <div id="q-options"></div>
-    </div>
+        <h4 id="q-category" style="text-align:center; color:#999; margin:0;">類別</h4>
+        <h3 id="q-text" style="margin-top:5px;">問題標題</h3>
+        <p style="font-size:0.9em; margin-bottom:15px;">請依照<b>「重視程度」</b>依序點擊下方選項<br>(第 1 名最重要，依此類推)</p>
+        
+        <div class="rank-container">
+            <div class="rank-slot" id="slot-0" onclick="undoRank(0)"><span class="rank-label">NO.1</span><span class="content">點擊下方選項加入</span></div>
+            <div class="rank-slot" id="slot-1" onclick="undoRank(1)"><span class="rank-label">NO.2</span><span class="content"></span></div>
+            <div class="rank-slot" id="slot-2" onclick="undoRank(2)"><span class="rank-label">NO.3</span><span class="content"></span></div>
+            <div class="rank-slot" id="slot-3" onclick="undoRank(3)"><span class="rank-label">NO.4</span><span class="content"></span></div>
+        </div>
 
-    <div id="step-transition" class="step">
-        <h2>🎉 第一階段完成</h2>
-        <p>您個人的需求分析已記錄。</p>
-        <p>接下來將進入「家人保障」的需求檢核。</p>
-        <button class="nav-btn" onclick="startFamilyPhase()">繼續填寫家人部分 ➔</button>
+        <div class="option-pool" id="q-options"></div>
+
+        <button id="next-btn" class="nav-btn" onclick="nextQuestion()">下一題 ➔</button>
     </div>
 
     <div id="step-result" class="step">
         <div id="final-message">
-            <h2>🔄 資料處理中</h2>
-            <p>正在分析您的需求偏好並傳送至系統...</p>
+            <h2>🔄 正在計算權重...</h2>
+            <p>系統正在分析您的排序邏輯...</p>
             <div id="loading-spinner">⏳ 上傳中...</div>
         </div>
     </div>
@@ -202,284 +198,416 @@
 </div>
 
 <script>
-    // 🔴 你的 Google Script 網址 (已整合)
+    // 🔴 你的 Google Script 網址
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwNNc9BZ0AJzTGGYK4cnqAsuA78FtWMuuVoJMmn4hZpOSWuVCy0N6eLyPk-h414ZkJD/exec';
 
-    // === 題庫資料 (完整版 20+20) ===
+    /* === 題庫擴充說明 ===
+       每題擴充為 4 個選項，對應：
+       - 失能/長照 (Long-term Care)
+       - 醫療/實支 (Medical/Surgery)
+       - 重大/一次金 (CI/Lump Sum)
+       - 壽險/意外 (Life/Accident)
+    */
     
-    // 自我規劃題庫
+    // 【自我規劃】完整 10 題
     const questionsSelf = [
-        // 第一階段：生存焦慮 (1-10)
-        { cat: "【自我】", q: "關於未來的風險，你最害怕發生哪種狀況？", a: "活得太久，但錢不夠用（怕老/病）", b: "走得太早，責任沒人扛（怕死/責任）", tag: "A:生存風險 vs B:責任風險" },
-        { cat: "【自我】", q: "如果身體出狀況，你最無法接受的是？", a: "生活品質被迫下降", b: "存款積蓄瞬間歸零", tag: "A:品質導向 vs B:資產保全" },
-        { cat: "【自我】", q: "對你來說，買保險是為了？", a: "生病時有更好的治療選擇", b: "不能工作時，薪水能被填補", tag: "A:醫療權 vs B:收入權" },
-        { cat: "【自我】", q: "如果只能先解決一個擔憂，你會優先處理？", a: "需長期被人照顧，失去尊嚴", b: "突然罹患重病，措手不及", tag: "A:長照失能 vs B:重大傷病" },
-        { cat: "【自我】", q: "想像生病時，哪種壓力會讓你更焦慮？", a: "每月固定的長期開銷（房貸/看護）", b: "初期的一大筆手術或器材費", tag: "A:持續壓力 vs B:瞬間壓力" },
-        { cat: "【自我】", q: "不想拖累家人，你是指？", a: "不想讓家人花時間或體力照顧我", b: "不想讓家人拿錢出來幫我付醫藥費", tag: "A:長照日額 vs B:實支一次金" },
-        { cat: "【自我】", q: "對於未知的風險，你傾向的策略是？", a: "細水長流，每個月有錢進來讓我運用", b: "乾脆俐落，直接給我一筆錢讓我自己看著辦", tag: "A:年金月給付 vs B:一次給付" },
-        { cat: "【自我】", q: "如果真的發生失能狀況，你希望？", a: "確保每個月有錢請人照顧", b: "先拿一筆錢改善居家環境或應急", tag: "A:持續給付 vs B:一次給付" },
-        { cat: "【自我】", q: "你比較喜歡哪種「安全感」？", a: "像領薪水一樣，源源不絕的穩定感", b: "像中樂透一樣，手握大筆資金的掌握感", tag: "A:持續型 vs B:啟動型" },
-        { cat: "【自我】", q: "這次規劃的最終目標，你希望達成？", a: "讓我的未來生活水準「撐得住」", b: "讓突發的意外打擊「不致命」", tag: "A:撐時間型 vs B:擋災難型" },
-        
-        // 第二階段：使用情境 (11-20)
-        { cat: "【自我】", q: "如果必須住院，你比較在意？", a: "升等病房差額、薪水損失能補回來", b: "自費藥物、手術耗材費用夠不夠付", tag: "A:日額慰問 vs B:實支實付" },
-        { cat: "【自我】", q: "以你目前的工作與生活型態，你覺得哪個機率高？", a: "身體機能退化、慢性病、文明病", b: "外出通勤風險、運動傷害、意外事故", tag: "A:醫療型 vs B:意外型" },
-        { cat: "【自我】", q: "如果需要休養 3 個月不能工作，你希望？", a: "保險理賠能按月彌補我的薪水損失", b: "保險直接賠一筆錢，當作緊急預備金", tag: "A:日額失能 vs B:一次金" },
-        { cat: "【自我】", q: "哪一種情境比較容易發生在你身上？", a: "因為健康問題，反覆進出醫院檢查治療", b: "因為突發意外，需要一次性的手術或復健", tag: "A:醫療型 vs B:意外型" },
-        { cat: "【自我】", q: "如果醫療行為需要長期抗戰，你偏好？", a: "每次回診、治療都有錢拿（感覺沒虧）", b: "確診當下就拿一大筆錢（落袋為安）", tag: "A:療程型 vs B:重大傷病" },
-        { cat: "【自我】", q: "你對「實用」的定義是？", a: "理賠頻率高，小病小痛都能賠", b: "理賠金額大，發生大事才啟動", tag: "A:廣度醫療 vs B:深度重大" },
-        { cat: "【自我】", q: "如果生病了，你最擔心影響到？", a: "我的職涯發展與工作收入", b: "我的存款水位與投資計劃", tag: "A:薪資補償 vs B:高額醫療" },
-        { cat: "【自我】", q: "如果只能選一種住院保障？", a: "住幾天賠幾天（定額）", b: "花多少賠多少（實支）", tag: "A:住院日額 vs B:實支實付" },
-        { cat: "【自我】", q: "直覺上，你覺得自己未來 5 年內？", a: "看醫生的頻率會變高", b: "遇到意外的風險會變高", tag: "A:醫療優先 vs B:意外優先" },
-        { cat: "【自我】", q: "最後決策，如果預算有限，你想先保住？", a: "每天的生活費與照顧費", b: "高昂的醫療費與手術費", tag: "A:長照日額 vs B:實支重大" }
+        { 
+            cat: "【自我】生存風險", 
+            q: "如果不幸發生事故，你最擔心無法解決的問題是？", 
+            opts: [
+                { text: "長期臥床需人照顧，拖累家人的錢", tag: "失能長照" },
+                { text: "罹患重症，急需一大筆錢治療", tag: "重大傷病" },
+                { text: "住院手術花費高，積蓄瞬間歸零", tag: "醫療實支" },
+                { text: "走得太早，留下的房貸與責任未了", tag: "壽險責任" }
+            ]
+        },
+        { 
+            cat: "【自我】預算分配", 
+            q: "如果預算有限，你希望保費優先花在？", 
+            opts: [
+                { text: "確保每月有生活費 (失能扶助)", tag: "失能長照" },
+                { text: "解決高額自費藥物 (實支實付)", tag: "醫療實支" },
+                { text: "拿到一筆急用金 (癌症/重大傷病)", tag: "重大傷病" },
+                { text: "發生意外時的保障 (意外險)", tag: "意外風險" }
+            ]
+        },
+        { 
+            cat: "【自我】治療品質", 
+            q: "假設生病住院，你最在意的品質是？", 
+            opts: [
+                { text: "不用家人輪班，有錢請看護", tag: "失能長照" },
+                { text: "使用最好的自費醫材/達文西手術", tag: "醫療實支" },
+                { text: "安心休養，不用擔心沒工作收入", tag: "重大傷病" },
+                { text: "升等單人病房，休養不被打擾", tag: "醫療實支" }
+            ]
+        },
+        { 
+            cat: "【自我】壓力來源", 
+            q: "哪一種財務壓力會讓你感到最焦慮？", 
+            opts: [
+                { text: "每個月固定要支出的看護費用", tag: "失能長照" },
+                { text: "突然要拿出幾十萬的手術費", tag: "醫療實支" },
+                { text: "無法工作導致家庭收入中斷", tag: "重大傷病" },
+                { text: "意外發生導致身體殘缺", tag: "意外風險" }
+            ]
+        },
+        { 
+            cat: "【自我】保障功能", 
+            q: "買保險對你來說，最重要的意義是？", 
+            opts: [
+                { text: "老後不成為孩子的負擔 (尊嚴)", tag: "失能長照" },
+                { text: "生病時有權利選擇好的治療 (品質)", tag: "醫療實支" },
+                { text: "發生大事時有錢能應急 (安全感)", tag: "重大傷病" },
+                { text: "給家人留一份愛與責任 (傳承)", tag: "壽險責任" }
+            ]
+        },
+        { 
+            cat: "【自我】使用情境", 
+            q: "以下哪種狀況發生在你身上，你會覺得「幸好有買保險」？", 
+            opts: [
+                { text: "被判定失能，每個月保險公司匯錢來", tag: "失能長照" },
+                { text: "結帳時看到高額收據，保險全賠", tag: "醫療實支" },
+                { text: "確診癌症，戶頭直接多了一百萬", tag: "重大傷病" },
+                { text: "發生車禍骨折，理賠金夠休養半年", tag: "意外風險" }
+            ]
+        },
+        { 
+            cat: "【自我】風險機率", 
+            q: "直覺上，你覺得自己未來 10 年最可能遇到？", 
+            opts: [
+                { text: "身體機能退化，需要他人協助", tag: "失能長照" },
+                { text: "慢性病或文明病，需長期治療", tag: "醫療實支" },
+                { text: "癌症或心血管疾病突發", tag: "重大傷病" },
+                { text: "騎車/開車/運動發生的意外傷害", tag: "意外風險" }
+            ]
+        },
+        { 
+            cat: "【自我】缺口填補", 
+            q: "如果真的無法工作了，你希望保險幫你解決？", 
+            opts: [
+                { text: "像領薪水一樣，持續給付生活費", tag: "失能長照" },
+                { text: "支付醫院那些健保不給付的項目", tag: "醫療實支" },
+                { text: "先給我一筆錢，讓我還清貸款", tag: "重大傷病" },
+                { text: "留一筆錢給父母或小孩過日子", tag: "壽險責任" }
+            ]
+        },
+        { 
+            cat: "【自我】理賠偏好", 
+            q: "你比較喜歡哪種理賠方式？", 
+            opts: [
+                { text: "細水長流，保障跟著我一輩子", tag: "失能長照" },
+                { text: "花多少賠多少，實報實銷", tag: "醫療實支" },
+                { text: "一次拿一大筆，我自己決定怎麼用", tag: "重大傷病" },
+                { text: "約定好金額，發生就定額給付", tag: "意外風險" }
+            ]
+        },
+        { 
+            cat: "【自我】最終決策", 
+            q: "最後一題，如果只能選一個「絕對不能少」的保障？", 
+            opts: [
+                { text: "失能/長照險 (解決活太久的問題)", tag: "失能長照" },
+                { text: "實支實付 (解決病太久的問題)", tag: "醫療實支" },
+                { text: "重大傷病 (解決病太重的問題)", tag: "重大傷病" },
+                { text: "意外/壽險 (解決走太快/突發問題)", tag: "壽險意外" }
+            ]
+        }
     ];
 
-    // 家人規劃題庫
+    // 【家人規劃】完整 10 題
     const questionsFamily = [
-        // 第一階段：照顧責任 (1-10)
-        { cat: "【家人】", q: "當家人生病時，你最擔心的衝擊是？", a: "漫長的照顧過程，錢像無底洞", b: "突然的一場大病，拿不出急用金", tag: "A:長期錢坑 vs B:急用缺口" },
-        { cat: "【家人】", q: "考量到你的工作與生活，你比較怕？", a: "家人病況拖很久，需要長期抗戰", b: "狀況發生得太突然，措手不及", tag: "A:長照風險 vs B:突發風險" },
-        { cat: "【家人】", q: "作為照顧者，保險對你最重要的功能是？", a: "每個月有錢進來，讓我能請看護（買時間）", b: "事情發生時有一筆錢，讓我好辦事（買資源）", tag: "A:買人力時間 vs B:買醫療資源" },
-        { cat: "【家人】", q: "如果必須做出選擇，你會優先處理？", a: "未來可能發生的失智、失能（長期依賴）", b: "癌症、腦中風等重大傷病（急需治療）", tag: "A:長照失能 vs B:醫療重大" },
-        { cat: "【家人】", q: "對於家人的健康風險，你比較怕哪種壓力？", a: "像房貸一樣，每個月都要支出的壓力", b: "像炸彈一樣，一次爆開的巨額支出", tag: "A:月給付需求 vs B:一次金需求" },
-        { cat: "【家人】", q: "規劃這份保單，你最不想看到的情況是？", a: "為了照顧家人，我也被迫辭職或影響生活", b: "為了救治家人，必須變賣資產或借錢", tag: "A:薪資補償 vs B:高額醫療" },
-        { cat: "【家人】", q: "如果家人需要人照顧，目前的家庭狀況是？", a: "人力吃緊，必須花錢請看護或住機構", b: "人力可照顧，但需要錢補貼家用", tag: "A:強調月給付 vs B:強調一筆金" },
-        { cat: "【家人】", q: "對於不確定性，你傾向？", a: "把風險拉長，分擔未來的每個月開銷", b: "把風險集中，當下解決最大的資金缺口", tag: "A:撐時間型 vs B:一次給付型" },
-        { cat: "【家人】", q: "你覺得哪種理賠方式，對家庭和諧比較有幫助？", a: "定期給付，專款專用付給照顧者/機構", b: "一次給付，由家人開會討論如何運用", tag: "A:避免爭議型 vs B:靈活運用型" },
-        { cat: "【家人】", q: "整體來說，你希望這份保單能幫你？", a: "讓這場照顧馬拉松跑得完", b: "讓這場突發災難能過關", tag: "A:續航力 vs B:爆發力" },
-
-        // 第二階段：使用情境 (11-20)
-        { cat: "【家人】", q: "如果家人住院，你比較希望？", a: "每天有一筆固定金額，補貼看護費或營養金", b: "憑收據理賠，花多少賠多少，不用擔心藥費", tag: "A:住院日額 vs B:實支實付" },
-        { cat: "【家人】", q: "以這位家人的年紀與體況，你覺得哪個風險高？", a: "自然老化、退化、慢性疾病", b: "跌倒、骨折、交通事故等意外", tag: "A:疾病型 vs B:意外型" },
-        { cat: "【家人】", q: "如果住院 7~10 天，你比較在意？", a: "請看護一天 3000 元的費用能不能被涵蓋", b: "醫生建議的自費手術/醫材費能不能付得起", tag: "A:日額型 vs B:實支型" },
-        { cat: "【家人】", q: "哪一種狀況你比較能想像發生在他/她身上？", a: "因為疾病，反覆進出醫院治療", b: "因為一次意外，需要休養復原", tag: "A:醫療型 vs B:意外型" },
-        { cat: "【家人】", q: "如果家人需要長期治療（如洗腎、復健），你希望？", a: "每次去醫院都有錢領（補貼車資/掛號）", b: "確診當下拿一大筆錢（讓我們自己規劃）", tag: "A:療程型 vs B:一次給付" },
-        { cat: "【家人】", q: "這份保單對你來說，怎麼樣才算「有用」？", a: "只要有住院或手術就能賠，感覺比較安心", b: "只有發生大事才賠沒關係，但要賠得夠多", tag: "A:高頻率醫療 vs B:高保額重大" },
-        { cat: "【家人】", q: "你覺得哪一種狀況，比較容易打亂你的生活節奏？", a: "家人生病，需要頻繁接送陪診", b: "突然發生意外，需要緊急處理事務", tag: "A:醫療看護 vs B:意外急難" },
-        { cat: "【家人】", q: "如果只能選一種住院保障給家人？", a: "不管花多少，有住院就給錢（定額）", b: "只有符合健保不給付的項目才賠（實支）", tag: "A:感覺型日額 vs B:實用型實支" },
-        { cat: "【家人】", q: "直覺來看，你覺得哪種機率比較高？", a: "醫療需求隨著年紀慢慢增加", b: "意外事件突然發生", tag: "A:醫療重於意外 vs B:意外重於醫療" },
-        { cat: "【家人】", q: "最後決策，如果只能先補一塊拼圖，你會選？", a: "跟「住院、生病治療」直接相關的", b: "跟「失能、需要人照顧」直接相關的", tag: "A:短期醫療 vs B:長期照護" }
+        { 
+            cat: "【家人】照顧擔憂", 
+            q: "當家人生病倒下，你最怕面臨什麼狀況？", 
+            opts: [
+                { text: "需長期臥床，看護費每月3-5萬", tag: "失能長照" },
+                { text: "突然需要幾十萬的手術費/器材費", tag: "醫療實支" },
+                { text: "為了照顧家人，我被迫辭職斷炊", tag: "失能長照" },
+                { text: "不知道該怎麼治療，需要尋求名醫", tag: "重大傷病" }
+            ]
+        },
+        { 
+            cat: "【家人】經濟衝擊", 
+            q: "如果長輩生病，對你最大的影響是？", 
+            opts: [
+                { text: "長期燒錢，像無底洞一樣", tag: "失能長照" },
+                { text: "當下拿不出足夠的現金", tag: "重大傷病" },
+                { text: "醫院雜費太貴，負擔不起", tag: "醫療實支" },
+                { text: "需頻繁請假陪診，影響工作", tag: "失能長照" }
+            ]
+        },
+        { 
+            cat: "【家人】保障功能", 
+            q: "幫家人買保險，你最主要的目的是？", 
+            opts: [
+                { text: "讓保險公司幫忙出看護費 (買人力)", tag: "失能長照" },
+                { text: "讓家人能用最好的藥物 (買尊嚴)", tag: "醫療實支" },
+                { text: "發生大事時有一筆錢好辦事 (買資源)", tag: "重大傷病" },
+                { text: "萬一跌倒骨折能有補貼 (買意外)", tag: "意外風險" }
+            ]
+        },
+        { 
+            cat: "【家人】風險預判", 
+            q: "以家人的年紀與體況，你覺得最可能發生？", 
+            opts: [
+                { text: "失智/中風，需要專人照顧", tag: "失能長照" },
+                { text: "跌倒/骨折/車禍等意外傷害", tag: "意外風險" },
+                { text: "癌症/心肌梗塞等重大疾病", tag: "重大傷病" },
+                { text: "慢性病住院，反覆進出醫院", tag: "醫療實支" }
+            ]
+        },
+        { 
+            cat: "【家人】預算取捨", 
+            q: "如果預算有限，你想先幫家人解決？", 
+            opts: [
+                { text: "每個月固定的照顧開銷", tag: "失能長照" },
+                { text: "住院時的高額自費項目", tag: "醫療實支" },
+                { text: "確診當下的緊急預備金", tag: "重大傷病" },
+                { text: "日常生活的小意外理賠", tag: "意外風險" }
+            ]
+        },
+        { 
+            cat: "【家人】家庭和諧", 
+            q: "你覺得哪種理賠，對家庭氣氛幫助最大？", 
+            opts: [
+                { text: "每月定期給付，不用兄弟姊妹攤錢", tag: "失能長照" },
+                { text: "實報實銷，不用擔心藥費誰出", tag: "醫療實支" },
+                { text: "一次給付，家人可商量如何運用", tag: "重大傷病" },
+                { text: "身故留愛，避免遺產紛爭", tag: "壽險責任" }
+            ]
+        },
+        { 
+            cat: "【家人】照顧資源", 
+            q: "如果家人需要人照顧，目前的狀況是？", 
+            opts: [
+                { text: "無人手，一定要花錢請看護/機構", tag: "失能長照" },
+                { text: "有人手，但需要錢補貼家用", tag: "失能長照" },
+                { text: "需要好的醫療品質讓病情好轉", tag: "醫療實支" },
+                { text: "需要一筆錢改造居家無障礙環境", tag: "重大傷病" }
+            ]
+        },
+        { 
+            cat: "【家人】意外場景", 
+            q: "如果是針對老人家，你最擔心哪種意外？", 
+            opts: [
+                { text: "跌倒導致臥床不起 (失能)", tag: "失能長照" },
+                { text: "骨折需要自費打鋼釘/復健", tag: "意外風險" },
+                { text: "交通事故受傷住院", tag: "醫療實支" },
+                { text: "意外身故", tag: "壽險責任" }
+            ]
+        },
+        { 
+            cat: "【家人】醫療場景", 
+            q: "如果醫生建議使用自費項目(如標靶藥物)，你會？", 
+            opts: [
+                { text: "希望保險能全額負擔 (實支)", tag: "醫療實支" },
+                { text: "希望有一筆錢能自由運用", tag: "重大傷病" },
+                { text: "擔心後續副作用需要人照顧", tag: "失能長照" },
+                { text: "考量經濟狀況，選擇健保給付", tag: "保守型" }
+            ]
+        },
+        { 
+            cat: "【家人】最終決策", 
+            q: "最後決策，這份保單一定要具備的功能？", 
+            opts: [
+                { text: "解決「長期需要人照顧」的錢", tag: "失能長照" },
+                { text: "解決「高額醫療費/手術費」的錢", tag: "醫療實支" },
+                { text: "解決「突發大病」的急用金", tag: "重大傷病" },
+                { text: "解決「意外突發」的相關費用", tag: "意外風險" }
+            ]
+        }
     ];
 
-    // === 程式邏輯 (Engine) ===
-    let currentMode = ''; 
-    let currentQueue = []; 
+    // === 核心邏輯變數 ===
+    let currentMode = '';
+    let currentQueue = [];
     let answers = []; 
     let currentIndex = 0;
-    let doingFamilyAfterSelf = false; 
+    
+    // 排序暫存區
+    let currentRank = []; 
 
     function selectTarget(mode) {
-        // --- 🔒 防呆驗證區 (檢查是否有漏填) ---
+        // 表單驗證
         const name = document.getElementById('clientName').value.trim();
-        const dob = document.getElementById('clientDob').value.trim();
+        const contact = document.getElementById('clientContact').value.trim();
         const job = document.getElementById('clientJob').value.trim();
-        
-        // 取得性別單選值
+        const dob = document.getElementById('clientDob').value.trim();
         const sexEls = document.getElementsByName('clientSex');
-        let sex = '';
-        for(let el of sexEls) { if(el.checked) sex = el.value; }
+        let sex = ''; for(let el of sexEls) if(el.checked) sex = el.value;
 
-        if (!name || !sex || !dob || !job) {
-            alert("⚠️ 請輸入尊貴的大名、性別、生日與職業，我們才能開始分析喔！");
+        if (!name || !sex || !contact || !job || !dob) {
+            alert("⚠️ 請完整填寫所有欄位，以便我們提供精準分析！");
             return;
         }
-        // ---------------------
 
         currentMode = mode;
+        if (mode === 'self' || mode === 'both') currentQueue = questionsSelf;
+        else currentQueue = questionsFamily;
+
         document.getElementById('step-intro').classList.remove('active');
         document.getElementById('step-question').classList.add('active');
-        
-        if (mode === 'self' || mode === 'both') {
-            currentQueue = questionsSelf;
-        } else {
-            currentQueue = questionsFamily;
-        }
-        
         loadQuestion();
     }
 
     function loadQuestion() {
         if (currentIndex >= currentQueue.length) {
-            handleQueueFinish();
+            handleFinish();
             return;
         }
 
+        // 重置狀態
+        currentRank = [];
+        updateRankUI();
+        document.getElementById('next-btn').classList.remove('ready');
+
         const qData = currentQueue[currentIndex];
         document.getElementById('q-category').innerText = qData.cat;
-        
-        // 題號顯示邏輯
-        let displayNum = currentIndex + 1;
-        document.getElementById('q-text').innerText = displayNum + ". " + qData.q;
+        document.getElementById('q-text').innerText = (currentIndex+1) + ". " + qData.q;
         
         // 進度條
-        const progress = ((currentIndex) / currentQueue.length) * 100;
-        document.getElementById('progress').style.width = progress + "%";
+        const pct = (currentIndex / currentQueue.length) * 100;
+        document.getElementById('progress').style.width = pct + "%";
 
-        const optionsHTML = `
-            <button class="option-btn" onclick="saveAnswer('A', '${qData.tag}', '${qData.a}')">A. ${qData.a}</button>
-            <button class="option-btn" onclick="saveAnswer('B', '${qData.tag}', '${qData.b}')">B. ${qData.b}</button>
-        `;
-        document.getElementById('q-options').innerHTML = optionsHTML;
+        // 生成選項
+        const pool = document.getElementById('q-options');
+        pool.innerHTML = '';
+        qData.opts.forEach((opt, idx) => {
+            let btn = document.createElement('div');
+            btn.className = 'option-card';
+            btn.id = 'opt-' + idx;
+            btn.innerHTML = `<span class="badge">選項</span> ${opt.text}`;
+            btn.onclick = () => pickOption(idx);
+            pool.appendChild(btn);
+        });
     }
 
-    function saveAnswer(choice, tag, detail) {
+    function pickOption(idx) {
+        if (currentRank.length >= 4) return;
+        currentRank.push(idx);
+        updateRankUI();
+    }
+
+    function undoRank(slotIdx) {
+        if (slotIdx >= currentRank.length) return;
+        currentRank.splice(slotIdx, 1);
+        updateRankUI();
+    }
+
+    function updateRankUI() {
+        for (let i = 0; i < 4; i++) {
+            const slot = document.getElementById('slot-' + i);
+            const content = slot.querySelector('.content');
+            
+            if (i < currentRank.length) {
+                const optIdx = currentRank[i];
+                const qData = currentQueue[currentIndex];
+                content.innerText = qData.opts[optIdx].text;
+                slot.classList.add('filled');
+            } else {
+                content.innerText = (i === 0 && currentRank.length === 0) ? "點擊下方選項加入" : "";
+                slot.classList.remove('filled');
+            }
+        }
+
+        for (let i = 0; i < 4; i++) {
+            const btn = document.getElementById('opt-' + i);
+            if (currentRank.includes(i)) {
+                btn.classList.add('hidden');
+            } else {
+                btn.classList.remove('hidden');
+            }
+        }
+
+        const nextBtn = document.getElementById('next-btn');
+        if (currentRank.length === 4) {
+            nextBtn.classList.add('ready');
+            nextBtn.innerText = "下一題 ➔";
+        } else {
+            nextBtn.classList.remove('ready');
+            nextBtn.innerText = `請排序完畢 (${currentRank.length}/4)`;
+        }
+    }
+
+    function nextQuestion() {
+        if (currentRank.length < 4) return;
+
         const qData = currentQueue[currentIndex];
+        const rankedTags = currentRank.map(idx => qData.opts[idx].tag);
+        
         answers.push({
             q: qData.q,
-            choice: choice,
-            detail: detail,
-            tag: tag
+            rankedTags: rankedTags 
         });
 
         currentIndex++;
         loadQuestion();
     }
 
-    function handleQueueFinish() {
-        if (currentMode === 'both' && !doingFamilyAfterSelf) {
-            doingFamilyAfterSelf = true;
-            document.getElementById('step-question').classList.remove('active');
-            document.getElementById('step-transition').classList.add('active');
+    function handleFinish() {
+        if (currentMode === 'both' && currentQueue === questionsSelf) {
+            alert("第一階段完成！接下來進入家人規劃部分。");
+            currentQueue = questionsFamily;
+            currentIndex = 0;
+            loadQuestion();
         } else {
             submitData();
         }
     }
 
-    function startFamilyPhase() {
-        document.getElementById('step-transition').classList.remove('active');
-        document.getElementById('step-question').classList.add('active');
-        currentQueue = questionsFamily;
-        currentIndex = 0;
-        loadQuestion();
-    }
-
-    // === 🌟 智慧分析核心邏輯 (包含抓取新欄位) ===
+    // === 🔥 後台加權計算核心 ===
     function submitData() {
         document.getElementById('step-question').classList.remove('active');
         document.getElementById('step-result').classList.add('active');
         document.getElementById('loading-spinner').style.display = 'block';
 
-        // 🟢 這裡是你之前漏掉的關鍵：要把 HTML 輸入框的值抓進來
-        const name = document.getElementById('clientName').value.trim();
-        const dob = document.getElementById('clientDob').value.trim();
-        const job = document.getElementById('clientJob').value.trim();
+        const name = document.getElementById('clientName').value;
+        const contact = document.getElementById('clientContact').value;
+        const job = document.getElementById('clientJob').value;
+        const dob = document.getElementById('clientDob').value;
         const sexEls = document.getElementsByName('clientSex');
-        let sex = '';
-        for(let el of sexEls) { if(el.checked) sex = el.value; }
+        let sex = ''; for(let el of sexEls) if(el.checked) sex = el.value;
 
-        // 1. 初始化計分器
-        let self_p1_A = 0, self_p1_B = 0;
-        let self_p2_A = 0, self_p2_B = 0;
-        let fam_p1_A = 0, fam_p1_B = 0;
-        let fam_p2_A = 0, fam_p2_B = 0;
-        let keywords = [];
+        // 1. 計算權重分數
+        let scores = {}; 
 
-        // 2. 智慧遍歷答案
-        answers.forEach((item, index) => {
-            let isSelfQuestion = false;
-            let isPhase1 = false;
-
-            if (currentMode === 'self') {
-                isSelfQuestion = true;
-                isPhase1 = (index < 10);
-            } else if (currentMode === 'family') {
-                isSelfQuestion = false;
-                isPhase1 = (index < 10);
-            } else { // both mode
-                if (index < 20) { // 前20題是自己
-                    isSelfQuestion = true;
-                    isPhase1 = (index < 10);
-                } else { // 後20題是家人
-                    isSelfQuestion = false;
-                    isPhase1 = (index < 30);
-                }
-            }
-
-            // 累加分數
-            if (isSelfQuestion) {
-                if (isPhase1) {
-                    item.choice === 'A' ? self_p1_A++ : self_p1_B++;
-                } else {
-                    item.choice === 'A' ? self_p2_A++ : self_p2_B++;
-                }
-            } else {
-                if (isPhase1) {
-                    item.choice === 'A' ? fam_p1_A++ : fam_p1_B++;
-                } else {
-                    item.choice === 'A' ? fam_p2_A++ : fam_p2_B++;
-                }
-            }
-
-            // 抓取關鍵字
-            let tagParts = item.tag.split('vs');
-            let keyTag = (item.choice === 'A') ? tagParts[0] : tagParts[1];
-            if(keyTag) {
-                keyTag = keyTag.replace(/[AB]:/g, '').trim(); 
-                keywords.push(keyTag);
-            }
+        answers.forEach(ans => {
+            // Rank 1 = 4分, Rank 2 = 3分...
+            ans.rankedTags.forEach((tag, idx) => {
+                let score = 4 - idx;
+                if (!scores[tag]) scores[tag] = 0;
+                scores[tag] += score;
+            });
         });
 
-        // 3. 生成報告文字 (🟢 把性別、生日、職業 放進報告表頭)
-        let finalReport = `【📊 保險需求分析報告】\n`;
-        finalReport += `===================================\n`;
-        // 這裡確保了 Google Sheet 會收到完整資訊
-        finalReport += `🧑 客戶：${name} (${sex}) | 生日：${dob} | 職業：${job}\n`;
-        finalReport += `📋 模式：${currentMode === 'self' ? '自我' : (currentMode === 'family' ? '家人' : '混合')}\n\n`;
+        // 2. 排序分數 (由高到低)
+        let sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
         
-        // --- 生成【自我規劃】區塊 ---
-        if (currentMode === 'self' || currentMode === 'both') {
-            let s1_total = self_p1_A + self_p1_B;
-            let s2_total = self_p2_A + self_p2_B;
-            let s1_pct = Math.round((self_p1_A / s1_total) * 100) || 0;
-            let s2_pct = Math.round((self_p2_A / s2_total) * 100) || 0;
+        // 3. 生成報告
+        let report = `【📊 保險權重分析報告】\n`;
+        report += `=========================\n`;
+        report += `🧑 客戶：${name} (${sex})\n`;
+        report += `🎂 生日：${dob}\n`;
+        report += `📱 聯絡：${contact}\n`;
+        report += `💼 職業：${job}\n`;
+        report += `📋 模式：${currentMode}\n\n`;
 
-            finalReport += `📌 【自我規劃分析Result】\n`;
-            
-            if (self_p1_A > self_p1_B) {
-                finalReport += `👉 生存焦慮：偏向【持續/生存型】(A:${s1_pct}%)\n   💡 洞察：重視尊嚴與現金流。建議：失能/長照/年金。\n`;
-            } else {
-                finalReport += `👉 生存焦慮：偏向【一次/責任型】(B:${100-s1_pct}%)\n   💡 洞察：重視資產保全。建議：壽險/一次金/預留稅源。\n`;
-            }
-
-            if (self_p2_A > self_p2_B) {
-                finalReport += `👉 使用情境：偏向【醫療/日額型】(A:${s2_pct}%)\n   💡 洞察：在意填補損失。建議：高額實支/日額。\n`;
-            } else {
-                finalReport += `👉 使用情境：偏向【意外/重大型】(B:${100-s2_pct}%)\n   💡 洞察：在意大風險槓桿。建議：重大傷病/意外險。\n`;
-            }
-            finalReport += `-----------------------------------\n`;
-        }
-
-        // --- 生成【家人規劃】區塊 ---
-        if (currentMode === 'family' || currentMode === 'both') {
-            let f1_total = fam_p1_A + fam_p1_B;
-            let f2_total = fam_p2_A + fam_p2_B;
-            let f1_pct = Math.round((fam_p1_A / f1_total) * 100) || 0;
-            let f2_pct = Math.round((fam_p2_A / f2_total) * 100) || 0;
-
-            finalReport += `📌 【家人規劃分析Result】\n`;
-            
-            if (fam_p1_A > fam_p1_B) {
-                finalReport += `👉 照顧責任：偏向【持久戰型】(A:${f1_pct}%)\n   💡 洞察：怕長期燒錢。建議：長照險/失能險。\n`;
-            } else {
-                finalReport += `👉 照顧責任：偏向【急救金型】(B:${100-f1_pct}%)\n   💡 洞察：怕突發缺口。建議：重大傷病/癌症一次金。\n`;
-            }
-
-            if (fam_p2_A > fam_p2_B) {
-                finalReport += `👉 使用情境：偏向【補貼/醫療型】(A:${f2_pct}%)\n   💡 洞察：在意看護費/日額補貼。\n`;
-            } else {
-                finalReport += `👉 使用情境：偏向【實支/意外型】(B:${100-f2_pct}%)\n   💡 洞察：在意高額自費/意外支出。\n`;
-            }
-            finalReport += `-----------------------------------\n`;
-        }
-
-        finalReport += `\n【🔥 客戶痛點標籤】\n${keywords.join("、")}\n`;
-        finalReport += `===================================\n`;
+        report += `🏆 【客戶重視險種排名】\n`;
+        sortedScores.forEach((item, index) => {
+            report += `No.${index+1} 🔴 ${item[0]} (${item[1]}分)\n`;
+        });
         
-        // 4. 打包傳送
+        report += `\n-------------------------\n`;
+        report += `【詳細排序紀錄】\n`;
+        answers.forEach((ans, idx) => {
+            report += `${idx+1}. ${ans.q}\n`;
+            report += `   └ 1.${ans.rankedTags[0]} > 2.${ans.rankedTags[1]} > 3.${ans.rankedTags[2]} > 4.${ans.rankedTags[3]}\n`;
+        });
+
+        // 4. 傳送
         let formData = {
             name: name,
             mode: currentMode,
-            analysis: finalReport
+            analysis: report
         };
 
         fetch(scriptURL, {
@@ -490,18 +618,15 @@
         })
         .then(() => {
             document.getElementById('final-message').innerHTML = `
-                <div style="text-align:center; padding: 20px;">
-                    <h2 style="color: #27ae60; font-size:3em; margin:0;">✅</h2>
-                    <h2 style="color: #27ae60;">提交成功！</h2>
-                    <p>感謝您的填寫。</p>
-                    <p>系統已生成分析報告，顧問將儘速與您聯繫。</p>
-                    <button class="nav-btn" onclick="location.reload()" style="background:#95a5a6; margin-top:20px;">關閉或填寫下一份</button>
+                <div style="text-align:center;">
+                    <h2 style="color: #27ae60;">✅ 分析完成</h2>
+                    <p>感謝您的填寫！</p>
+                    <p>根據排序結果，我們已收到您最重視的項目順序。</p>
+                    <button class="nav-btn ready" onclick="location.reload()">關閉</button>
                 </div>
             `;
         })
-        .catch(error => {
-            document.getElementById('final-message').innerHTML = `<h2 style="color:red">傳送失敗</h2><p>請檢查網路連線</p>`;
-        });
+        .catch(() => alert("傳送失敗"));
     }
 </script>
 
