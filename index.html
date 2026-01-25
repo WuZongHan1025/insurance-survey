@@ -6,90 +6,36 @@
 <title>生活風格與風險偏好分析</title>
 
 <style>
-:root {
-  --primary:#2c3e50;
-  --accent:#e74c3c;
-  --selected:#27ae60;
-  --bg:#f8f9fa;
-  --card:#ffffff;
-  --text:#333;
-}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-  background:var(--bg);margin:0;padding:20px;
-  display:flex;justify-content:center;align-items:center;min-height:100vh;
-}
-.container{
-  background:var(--card);max-width:620px;width:100%;
-  padding:30px;border-radius:12px;
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
-  position: relative;
-}
+/* CSS 樣式維持不變 */
+:root { --primary:#2c3e50; --accent:#e74c3c; --selected:#27ae60; --bg:#f8f9fa; --card:#ffffff; --text:#333; }
+body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto; background:var(--bg);margin:0;padding:20px; display:flex;justify-content:center;align-items:center;min-height:100vh; }
+.container{ background:var(--card);max-width:620px;width:100%; padding:30px;border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,.08); position: relative; }
 h2,h3,h4{text-align:center;color:var(--primary);}
 p{text-align:center;color:#666;line-height:1.6}
 .progress-bar{height:6px;background:#eee;border-radius:3px;margin-bottom:20px;overflow:hidden}
 .progress-fill{height:100%;background:var(--accent);width:0%;transition:.3s}
-
-input[type=text],input[type=tel]{
-  width:100%;padding:12px;margin-bottom:15px;
-  border:1px solid #ddd;border-radius:6px;font-size:16px;
-  box-sizing: border-box;
-}
+input[type=text],input[type=tel]{ width:100%;padding:12px;margin-bottom:15px; border:1px solid #ddd;border-radius:6px;font-size:16px; box-sizing: border-box; }
 .radio-group{display:flex;gap:10px;margin-bottom:15px}
-.radio-label{
-  flex:1;border:1px solid #ddd;border-radius:6px;
-  padding:10px;display:flex;align-items:center;gap:6px;cursor:pointer;
-}
-
-/* 排序卡片樣式 */
+.radio-label{ flex:1;border:1px solid #ddd;border-radius:6px; padding:10px;display:flex;align-items:center;gap:6px;cursor:pointer; }
 .option-pool{display:flex;flex-direction:column;gap:12px}
-.option-card{
-  border:2px solid #e0e0e0;border-radius:10px;
-  padding:15px;cursor:pointer;
-  display:flex;align-items:center;transition:.2s;
-  background: #fff;
-}
+.option-card{ border:2px solid #e0e0e0;border-radius:10px; padding:15px;cursor:pointer; display:flex;align-items:center;transition:.2s; background: #fff; }
 .option-card:hover{background:#f9f9f9}
 .option-card.selected{border-color:var(--selected);background:#f0fff4}
-.rank-box{
-  width:32px;height:32px;border-radius:6px;
-  border:2px solid #ccc;margin-right:12px;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:bold;flex-shrink:0;background:#fff;
-}
-.option-card.selected .rank-box{
-  background:var(--selected);color:#fff;border-color:var(--selected)
-}
-
-.nav-btn{
-  width:100%;padding:14px;border:none;border-radius:6px;
-  font-size:16px;margin-top:20px;
-  background:#aaa;color:#fff;opacity:.5;pointer-events:none;transition:.3s;
-}
+.rank-box{ width:32px;height:32px;border-radius:6px; border:2px solid #ccc;margin-right:12px; display:flex;align-items:center;justify-content:center; font-weight:bold;flex-shrink:0;background:#fff; }
+.option-card.selected .rank-box{ background:var(--selected);color:#fff;border-color:var(--selected) }
+.nav-btn{ width:100%;padding:14px;border:none;border-radius:6px; font-size:16px;margin-top:20px; background:#aaa;color:#fff;opacity:.5;pointer-events:none;transition:.3s; }
 .nav-btn.ready{background:var(--accent);opacity:1;pointer-events:auto}
-
 .step{display:none; animation: fadeIn 0.4s;}
 .step.active{display:block}
-
 @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-
 .check-btn-group{display:flex;gap:15px;margin-top:20px}
-.check-btn{
-  flex:1;padding:15px;border-radius:8px;
-  border:2px solid #ddd;background:#fff;font-weight:bold;cursor:pointer
-}
+.check-btn{ flex:1;padding:15px;border-radius:8px; border:2px solid #ddd;background:#fff;font-weight:bold;cursor:pointer }
 .check-btn.yes{border-color:var(--selected);color:var(--selected)}
 .check-btn.no{border-color:var(--accent);color:var(--accent)}
-
-/* 結果頁樣式 */
-.result-card {
-    border-radius: 10px; padding: 20px; margin-top: 20px; text-align: left;
-    color: #333; border-left: 6px solid #ccc; background: #f9f9f9;
-}
-.result-type-1 { border-left-color: #3498db; background: #eaf6ff; } /* 藍 */
-.result-type-2 { border-left-color: #27ae60; background: #eaffea; } /* 綠 */
-.result-type-3 { border-left-color: #f1c40f; background: #fffbe6; } /* 黃 */
-
+.result-card { border-radius: 10px; padding: 20px; margin-top: 20px; text-align: left; color: #333; border-left: 6px solid #ccc; background: #f9f9f9; }
+.result-type-1 { border-left-color: #3498db; background: #eaf6ff; }
+.result-type-2 { border-left-color: #27ae60; background: #eaffea; }
+.result-type-3 { border-left-color: #f1c40f; background: #fffbe6; }
 .result-title { font-size: 1.4em; font-weight: bold; margin-bottom: 10px; display:block; }
 .result-desc { font-size: 0.95em; line-height: 1.6; color: #555; }
 .result-list { margin: 10px 0; padding-left: 20px; }
@@ -154,129 +100,43 @@ input[type=text],input[type=tel]{
 </div>
 
 <script>
-/* ===== 1. 設定與題庫 ===== */
 // 🔴 請務必確認這裡換成你的 Google Script 網址
 const scriptURL = "https://script.google.com/macros/s/AKfycbwNNc9BZ0AJzTGGYK4cnqAsuA78FtWMuuVoJMmn4hZpOSWuVCy0N6eLyPk-h414ZkJD/exec";
 
 const RANK_WEIGHTS = [4,3,2,1];
 const TAG_MAP = {
   self_reserve: "自留/彈性",
-  risk_transfer: "轉嫁/規劃",
-  medical: "醫療/資源",
-  critical: "重大/底線",
-  life: "生活/責任",
-  care: "長照/失能"
+  risk_spread: "分散/結構",
+  immediate_use: "即用/資源",
+  stability: "穩定/底線"
+};
+
+// 💡 險種映射邏輯 (Tag -> Product)
+const PRODUCT_MAP = {
+  "self_reserve": "重大傷病 (一次金)",
+  "risk_spread": "意外/壽險 (專款專用)",
+  "immediate_use": "實支實付 (醫療)",
+  "stability": "失能/長照 (長期穩定)"
 };
 
 // 【自我規劃】精簡 6 題
 const questionsSelf = [
-  {
-    id: "A1", cat: "【生活感受】",
-    title: "當生活出現變化時，你通常最在意的是？",
-    options: [
-      { text: "能不能自己做決定、不被卡住", tag: "self_reserve" },
-      { text: "事情有沒有被分開處理，不會全部擠在一起", tag: "risk_transfer" },
-      { text: "當下需要的事情，有沒有資源能馬上用", tag: "medical" },
-      { text: "整體生活節奏會不會被打亂太多", tag: "life" }
-    ]
-  },
-  {
-    id: "A2", cat: "【安心來源】",
-    title: "什麼情況，會讓你心裡比較有底？",
-    options: [
-      { text: "手上有一筆可以自由運用的資源", tag: "self_reserve" },
-      { text: "不同狀況，各自有安排", tag: "risk_transfer" },
-      { text: "需要的時候，不用再煩惱怎麼處理", tag: "medical" },
-      { text: "重要事情至少有基本準備", tag: "critical" }
-    ]
-  },
-  {
-    id: "A3", cat: "【做準備的方式】",
-    title: "如果要為未來做準備，你比較偏好？",
-    options: [
-      { text: "慢慢累積，等需要時一次用", tag: "self_reserve" },
-      { text: "分成不同用途，各自安排", tag: "risk_transfer" },
-      { text: "先顧常會用到的部分", tag: "medical" },
-      { text: "重要的事情先有底線", tag: "critical" }
-    ]
-  },
-  {
-    id: "A4", cat: "【掌控感】",
-    title: "下面哪一種描述，比較像你？",
-    options: [
-      { text: "我比較相信自己臨場判斷", tag: "self_reserve" },
-      { text: "我喜歡事情事先分好類型", tag: "risk_transfer" },
-      { text: "我重視實際用得到的安排", tag: "medical" },
-      { text: "我希望關鍵時刻不會出問題", tag: "critical" }
-    ]
-  },
-  {
-    id: "A5", cat: "【面對不確定】",
-    title: "遇到不確定的情況，你比較傾向？",
-    options: [
-      { text: "先留空間，之後再決定怎麼做", tag: "self_reserve" },
-      { text: "事先分散，減少單一壓力", tag: "risk_transfer" },
-      { text: "當下先處理最急的部分", tag: "medical" },
-      { text: "確保不會出現最壞狀況", tag: "critical" }
-    ]
-  },
-  {
-    id: "A6", cat: "【價值取向】",
-    title: "以下哪一個最符合你的想法？",
-    options: [
-      { text: "錢在自己手上，彈性最大", tag: "self_reserve" },
-      { text: "用途分開，心理比較不累", tag: "risk_transfer" },
-      { text: "實用最重要，不用想太多", tag: "medical" },
-      { text: "有準備，心裡比較穩", tag: "critical" }
-    ]
-  }
+  { id: "A1", cat: "【生活感受】", title: "當事情不如預期發生，你第一個在意的是？", options: [ { text: "我能不能自己做決定", tag: "self_reserve" }, { text: "事情會不會全部卡在一起", tag: "risk_spread" }, { text: "現在有沒有資源可以用", tag: "immediate_use" }, { text: "生活會不會被影響很大（例如工作被迫中斷）", tag: "stability" } ] },
+  { id: "A2", cat: "【安心來源】", title: "什麼狀況，會讓你比較安心？", options: [ { text: "錢或資源掌握在自己手上", tag: "self_reserve" }, { text: "事情有分開處理，不會混在一起", tag: "risk_spread" }, { text: "需要時，馬上就能補上", tag: "immediate_use" }, { text: "大致都在可預期範圍內", tag: "stability" } ] },
+  { id: "A3", cat: "【做準備的方式】", title: "如果要為未來做準備，你比較偏向？", options: [ { text: "先存一筆錢，之後再決定怎麼用", tag: "self_reserve" }, { text: "用途先分好，各自處理", tag: "risk_spread" }, { text: "先顧最常會用到的部分", tag: "immediate_use" }, { text: "先確保不會出現最糟狀況", tag: "stability" } ] },
+  { id: "A4", cat: "【掌控感】", title: "下面哪一種描述，比較像你？", options: [ { text: "重要決定我希望自己來", tag: "self_reserve" }, { text: "事情分清楚，我比較不焦慮", tag: "risk_spread" }, { text: "實際用得到，比想得完整重要", tag: "immediate_use" }, { text: "只要關鍵時刻不出問題就好", tag: "stability" } ] },
+  { id: "A5", cat: "【面對不確定】", title: "遇到不確定的情況，你通常會？", options: [ { text: "先保留空間，不急著下決定", tag: "self_reserve" }, { text: "先拆開處理，避免壓力集中", tag: "risk_spread" }, { text: "先解決眼前最急的事", tag: "immediate_use" }, { text: "先確保不會影響正常生活", tag: "stability" } ] },
+  { id: "A6", cat: "【價值取向】", title: "以下哪一個最符合你的想法？", options: [ { text: "自己留著，彈性最大", tag: "self_reserve" }, { text: "分開處理，心比較不累", tag: "risk_spread" }, { text: "需要時能馬上派上用場", tag: "immediate_use" }, { text: "生活穩定最重要", tag: "stability" } ] }
 ];
 
 // 【家人規劃】精簡 4 題
 const questionsFamily = [
-  {
-    id: "B1", cat: "【關於身邊的人】",
-    title: "如果身邊的人遇到狀況，你比較在意？",
-    options: [
-      { text: "自己能不能馬上做出決定", tag: "self_reserve" },
-      { text: "事情有沒有被分開處理", tag: "risk_transfer" },
-      { text: "實際需要能不能即時補上", tag: "medical" },
-      { text: "整體生活不要被拖垮", tag: "life" }
-    ]
-  },
-  {
-    id: "B2", cat: "【你的角色】",
-    title: "在重要時刻，你希望自己是？",
-    options: [
-      { text: "有資源在手，可以臨場調度", tag: "self_reserve" },
-      { text: "每件事都有對應安排", tag: "risk_transfer" },
-      { text: "先把實際需求顧好", tag: "medical" },
-      { text: "至少有基本底線", tag: "critical" }
-    ]
-  },
-  {
-    id: "B3", cat: "【相處感受】",
-    title: "你覺得哪一種狀態比較舒服？",
-    options: [
-      { text: "不用被限制，用自己的方式處理", tag: "self_reserve" },
-      { text: "事情分清楚，不會互相影響", tag: "risk_transfer" },
-      { text: "需要的時候有人能支援", tag: "medical" },
-      { text: "重要事情有安排好", tag: "critical" }
-    ]
-  },
-  {
-    id: "B4", cat: "【你的底線】",
-    title: "以下哪一件事，你最不希望發生？",
-    options: [
-      { text: "手上沒資源，只能被動應付", tag: "self_reserve" },
-      { text: "所有事情擠在一起處理", tag: "risk_transfer" },
-      { text: "該處理的事情被拖延", tag: "medical" },
-      { text: "關鍵時刻完全沒準備", tag: "critical" }
-    ]
-  }
+  { id: "B1", cat: "【關於身邊的人】", title: "如果家裡真的需要你出面處理事情，你最怕的是？", options: [ { text: "最後所有決定都落在我身上，沒有退路", tag: "self_reserve" }, { text: "事情很多，但全部混在一起處理", tag: "risk_spread" }, { text: "知道該怎麼做，卻一時拿不出資源", tag: "immediate_use" }, { text: "事情拖太久，影響到原本生活", tag: "stability" } ] },
+  { id: "B2", cat: "【你的角色】", title: "哪一種情況，最容易讓你感到心累？", options: [ { text: "大家都等我決定，但我也承受很大壓力", tag: "self_reserve" }, { text: "每個人想法不同，卻要一起處理", tag: "risk_spread" }, { text: "事情卡著，卻一直沒實際進展", tag: "immediate_use" }, { text: "處理太久，影響工作或生活節奏", tag: "stability" } ] },
+  { id: "B3", cat: "【相處感受】", title: "以下哪一件事，最容易讓你覺得壓力大？", options: [ { text: "別人的責任，慢慢變成我要扛", tag: "self_reserve" }, { text: "情感、時間、金錢全部攪在一起", tag: "risk_spread" }, { text: "需要支出時，只能臨時想辦法", tag: "immediate_use" }, { text: "事情看不到結束點", tag: "stability" } ] },
+  { id: "B4", cat: "【你的底線】", title: "面對家庭狀況時，你最想守住的是？", options: [ { text: "自己選擇的空間", tag: "self_reserve" }, { text: "事情能清楚分開處理", tag: "risk_spread" }, { text: "遇到狀況能立刻應付", tag: "immediate_use" }, { text: "原本的生活與工作狀態", tag: "stability" } ] }
 ];
 
-/* ===== 2. 核心邏輯 ===== */
 let currentMode="", currentQueue=[], answers=[], currentIndex=0, currentRank=[];
 let totalQuestions=0, finishedQuestions=0;
 
@@ -286,13 +146,10 @@ function selectTarget(mode){
   const job=document.getElementById("clientJob").value.trim();
   const contact=document.getElementById("clientContact").value.trim();
   const sex=[...document.getElementsByName("clientSex")].find(x=>x.checked)?.value;
-  
   if(!name||!dob||!job||!contact||!sex){alert("請完整填寫所有欄位，以便我們提供精準分析！");return;}
-  
   currentMode=mode;
   currentQueue=(mode==="family")?questionsFamily:questionsSelf;
   totalQuestions=(mode==="both")?(questionsSelf.length+questionsFamily.length):currentQueue.length;
-  
   document.getElementById("step-intro").classList.remove("active");
   document.getElementById("step-question").classList.add("active");
   loadQuestion();
@@ -364,144 +221,71 @@ function finishCheck(isKnown){
 
   // 計算分數
   let scores={self:{}, family:{}};
-  // 初始化計分表
-  ["self_reserve","risk_transfer","medical","critical","life","care"].forEach(k=>{
+  // 初始化
+  ["self_reserve","risk_spread","immediate_use","stability"].forEach(k=>{
       scores.self[k]=0; scores.family[k]=0;
   });
 
-  // 累加分數 (排序權重)
+  // 累加分數
   answers.forEach(a=>a.rankedTags.forEach((t,i)=>{
       if(scores[a.mode][t] !== undefined) {
           scores[a.mode][t] += RANK_WEIGHTS[i];
       }
   }));
 
-  // === 🔥 類型判定演算法 🔥 ===
-  // 計算「自留 (self_reserve)」的平均排序強度 (滿分4分)
+  // 計算平均分 (用於性格判定)
   let selfReserveTotal = scores.self.self_reserve + scores.family.self_reserve;
   let totalQs = answers.length;
   let avgSelfScore = totalQs > 0 ? (selfReserveTotal / totalQs) : 0; 
   
+  // 性格判定
   let typeTitle = "";
   let typeClass = "";
   let typeHTML = "";
 
   if(avgSelfScore >= 2.8) { 
-      // 平均在 1~2 名之間 -> 高度自留 (藍)
-      typeTitle = "🟦 結果一｜高度自留型";
-      typeClass = "result-type-1";
-      typeHTML = `
-        <span class="result-title" style="color:#2980b9">${typeTitle}</span>
-        <div class="result-desc">
-            <b>你的風格是：把選擇權留在自己手上</b><br>
-            你並不是忽略不確定性，而是更相信：<br>
-            👉 「資源集中在自己手裡，臨場判斷最重要」<br><br>
-            <b>你在意的是：</b>
-            <ul class="result-list">
-                <li>自由度與掌控感</li>
-                <li>不被用途或規則限制</li>
-                <li>需要時可以一次做決定</li>
-            </ul>
-            <p style="text-align:left;font-size:0.9em;color:#777">適合：對自己判斷有信心、現金流管理能力不錯、不喜歡被綁住的人。</p>
-        </div>`;
+      typeTitle = "🟦 結果一｜高度自留型"; typeClass = "result-type-1";
+      typeHTML = `<span class="result-title" style="color:#2980b9">${typeTitle}</span><div class="result-desc"><b>你的風格是：把選擇權留在自己手上</b><br>你並不是忽略不確定性，而是更相信：<br>👉 「資源集中在自己手裡，臨場判斷最重要」<br><br><b>你在意的是：</b><ul class="result-list"><li>自由度與掌控感</li><li>不被用途或規則限制</li><li>需要時可以一次做決定</li></ul><p style="text-align:left;font-size:0.9em;color:#777">適合：對自己判斷有信心、現金流管理能力不錯、不喜歡被綁住的人。</p></div>`;
   } else if (avgSelfScore <= 2.2) {
-      // 平均在 3~4 名之間 -> 分散安排 (黃)
-      typeTitle = "🟨 結果三｜分散安排型";
-      typeClass = "result-type-3";
-      typeHTML = `
-        <span class="result-title" style="color:#f39c12">${typeTitle}</span>
-        <div class="result-desc">
-            <b>你的風格是：事先分類，心裡比較不累</b><br>
-            你比較安心的是：<br>
-            👉 「不同狀況各自有準備，不用臨時想」<br><br>
-            <b>你在意的是：</b>
-            <ul class="result-list">
-                <li>壓力不要集中</li>
-                <li>每件事都有對應方式</li>
-                <li>生活節奏不被打亂</li>
-            </ul>
-            <p style="text-align:left;font-size:0.9em;color:#777">適合：喜歡清楚規劃、不想臨場承擔太多變數的人。</p>
-        </div>`;
+      typeTitle = "🟨 結果三｜分散安排型"; typeClass = "result-type-3";
+      typeHTML = `<span class="result-title" style="color:#f39c12">${typeTitle}</span><div class="result-desc"><b>你的風格是：事先分類，心裡比較不累</b><br>你比較安心的是：<br>👉 「不同狀況各自有準備，不用臨時想」<br><br><b>你在意的是：</b><ul class="result-list"><li>壓力不要集中</li><li>每件事都有對應方式</li><li>生活節奏不被打亂</li></ul><p style="text-align:left;font-size:0.9em;color:#777">適合：喜歡清楚規劃、不想臨場承擔太多變數的人。</p></div>`;
   } else {
-      // 介於中間 -> 混合彈性 (綠)
-      typeTitle = "🟩 結果二｜混合彈性型";
-      typeClass = "result-type-2";
-      typeHTML = `
-        <span class="result-title" style="color:#27ae60">${typeTitle}</span>
-        <div class="result-desc">
-            <b>你的風格是：重要的分開，其餘留彈性</b><br>
-            你不太走極端，而是偏好：<br>
-            👉 「關鍵事情先顧好，保留調整空間」<br><br>
-            <b>你在意的是：</b>
-            <ul class="result-list">
-                <li>生活穩定度</li>
-                <li>彈性與安全感之間的平衡</li>
-                <li>不讓單一事件影響全部</li>
-            </ul>
-            <p style="text-align:left;font-size:0.9em;color:#777">常見於：重視生活品質、習慣分層安排事情的人。</p>
-        </div>`;
+      typeTitle = "🟩 結果二｜混合彈性型"; typeClass = "result-type-2";
+      typeHTML = `<span class="result-title" style="color:#27ae60">${typeTitle}</span><div class="result-desc"><b>你的風格是：重要的分開，其餘留彈性</b><br>你不太走極端，而是偏好：<br>👉 「關鍵事情先顧好，保留調整空間」<br><br><b>你在意的是：</b><ul class="result-list"><li>生活穩定度</li><li>彈性與安全感之間的平衡</li><li>不讓單一事件影響全部</li></ul><p style="text-align:left;font-size:0.9em;color:#777">常見於：重視生活品質、習慣分層安排事情的人。</p></div>`;
   }
 
-  // 生成後台報告
+  // 生成後台報告 (💡 這裡新增了險種轉換邏輯)
   function sort(o){return Object.entries(o).sort((a,b)=>b[1]-a[1]);}
   const sortedSelf=sort(scores.self);
   const sortedFamily=sort(scores.family);
 
   let report = `【🧑 客戶檔案】\n`;
-  report += `姓名：${name} (${sex})\n`;
-  report += `生日：${dob}\n`;
-  report += `職業：${job}\n`;
-  report += `聯絡：${contact}\n`;
-  report += `保單健檢意願：${isKnown ? "清楚既有保障" : "⚠️ 不清楚 (建議健檢)"}\n`;
-  report += `------------------------\n`;
+  report += `姓名：${name} (${sex})\n生日：${dob}\n職業：${job}\n聯絡：${contact}\n`;
+  report += `保單健檢意願：${isKnown ? "清楚" : "⚠️ 不清楚"}\n------------------------\n`;
   
-  report += `【🧠 風格分析】\n${typeTitle}\n(自留分數強度: ${avgSelfScore.toFixed(1)})\n\n`;
+  report += `【🧠 風格分析】\n${typeTitle} (自留強度: ${avgSelfScore.toFixed(1)})\n\n`;
 
-  report += `【📊 詳細權重排名】\n`;
+  // 這一區會顯示： 「1. 醫療險 (實支實付): 20分」 這樣的格式
+  report += `【📊 險種需求排序】\n`;
   if(currentMode === "self" || currentMode === "both"){
-      report += `[自我規劃]\n` + sortedSelf.filter(s=>s[1]>0).map(s=>`🔹${TAG_MAP[s[0]] || s[0]}: ${s[1]}分`).join("\n") + "\n\n";
+      report += `[自我規劃]\n` + sortedSelf.filter(s=>s[1]>0).map(s=>`🔹${PRODUCT_MAP[s[0]]}: ${s[1]}分`).join("\n") + "\n\n";
   }
   if(currentMode === "family" || currentMode === "both"){
-      report += `[家人規劃]\n` + sortedFamily.filter(s=>s[1]>0).map(s=>`🔸${TAG_MAP[s[0]] || s[0]}: ${s[1]}分`).join("\n");
+      report += `[家人規劃]\n` + sortedFamily.filter(s=>s[1]>0).map(s=>`🔸${PRODUCT_MAP[s[0]]}: ${s[1]}分`).join("\n");
   }
 
   // 4. 傳送
   fetch(scriptURL, {
-    method: "POST",
-    mode: "no-cors", 
+    method: "POST", mode: "no-cors", 
     headers: {"Content-Type": "text/plain"},
-    body: JSON.stringify({
-        name: name,
-        mode: currentMode,
-        analysis: report
-    })
+    body: JSON.stringify({ name: name, mode: currentMode, analysis: report })
   })
   .then(() => {
       document.getElementById("final-message").style.display = "none";
       let resultContainer = document.getElementById("analysis-content");
-      
-      let html = `
-        <div style="text-align:center; margin-bottom:20px;">
-            <h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2>
-            <p>感謝您的填寫！以下是您的分析結果：</p>
-        </div>
-        
-        <div class="result-card ${typeClass}">
-            ${typeHTML}
-        </div>
-      `;
-
-      if(!isKnown) {
-          html += `
-            <div style="background:#fff3cd;color:#856404;padding:15px;border-radius:8px;margin-top:20px;text-align:center;">
-                <strong>💡 貼心提醒</strong><br>
-                建議預約保單健檢，避免重複投保！
-            </div>
-          `;
-      }
-      
+      let html = `<div style="text-align:center; margin-bottom:20px;"><h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2><p>感謝您的填寫！以下是您的分析結果：</p></div><div class="result-card ${typeClass}">${typeHTML}</div>`;
+      if(!isKnown) html += `<div style="background:#fff3cd;color:#856404;padding:15px;border-radius:8px;margin-top:20px;text-align:center;"><strong>💡 貼心提醒</strong><br>建議預約保單健檢，避免重複投保！</div>`;
       html += `<button class="nav-btn ready" onclick="location.reload()" style="margin-top:30px">關閉</button>`;
-      
       resultContainer.innerHTML = html;
   })
   .catch(() => alert("傳送失敗，請檢查網路"));
