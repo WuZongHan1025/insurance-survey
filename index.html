@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>全方位保險需求權重分析</title>
+<title>生活風格與風險偏好分析</title>
 
 <style>
 :root {
@@ -41,11 +41,13 @@ input[type=text],input[type=tel]{
   padding:10px;display:flex;align-items:center;gap:6px;cursor:pointer;
 }
 
+/* 排序卡片樣式 */
 .option-pool{display:flex;flex-direction:column;gap:12px}
 .option-card{
   border:2px solid #e0e0e0;border-radius:10px;
   padding:15px;cursor:pointer;
-  display:flex;align-items:center;transition:.2s
+  display:flex;align-items:center;transition:.2s;
+  background: #fff;
 }
 .option-card:hover{background:#f9f9f9}
 .option-card.selected{border-color:var(--selected);background:#f0fff4}
@@ -100,8 +102,8 @@ input[type=text],input[type=tel]{
 <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 
 <div id="step-intro" class="step active">
-<h2>📊 保險需求權重分析</h2>
-<p>請協助填寫基本資料，<br>讓我們能提供精準的保障建議。</p>
+<h2>📊 生活風格與風險偏好分析</h2>
+<p>這份測驗將透過排序法（1~4名），<br>協助您釐清面對生活變化的真實偏好。</p>
 
 <label>姓名</label><input id="clientName" type="text" placeholder="請輸入姓名">
 <label>性別</label>
@@ -125,7 +127,7 @@ input[type=text],input[type=tel]{
 <div id="step-question" class="step">
 <h4 id="q-category" style="color:#999;margin:0"></h4>
 <h3 id="q-text" style="margin-top:5px"></h3>
-<p style="color:var(--accent);font-size:0.9em">請依照重視程度點選 1～4 名</p>
+<p style="color:var(--accent);font-size:0.9em">請依照符合程度點選 1～4 名<br><span style="color:#999;font-size:0.8em">(第1名最符合)</span></p>
 <div class="option-pool" id="q-options"></div>
 <button id="next-btn" class="nav-btn" onclick="nextQuestion()">下一題 ➔</button>
 <p style="text-align:center;cursor:pointer;font-size:0.8em;color:#999;margin-top:10px" onclick="resetCurrentRank()">↻ 重新排序本題</p>
@@ -144,7 +146,7 @@ input[type=text],input[type=tel]{
 <div id="step-result" class="step">
 <div id="final-message">
 <h2>🔄 正在生成分析結果...</h2>
-<p>請稍候...</p>
+<p>系統正在計算您的風格傾向...</p>
 </div>
 <div id="analysis-content"></div>
 </div>
@@ -160,7 +162,7 @@ const RANK_WEIGHTS = [4,3,2,1];
 const TAG_MAP = {
   self_reserve: "自留/彈性",
   risk_transfer: "轉嫁/規劃",
-  medical: "醫療/當下",
+  medical: "醫療/資源",
   critical: "重大/底線",
   life: "生活/責任",
   care: "長照/失能"
@@ -362,12 +364,12 @@ function finishCheck(isKnown){
 
   // 計算分數
   let scores={self:{}, family:{}};
-  // 初始化
-  ["self_reserve","risk_transfer","medical","critical","life","care","accident"].forEach(k=>{
+  // 初始化計分表
+  ["self_reserve","risk_transfer","medical","critical","life","care"].forEach(k=>{
       scores.self[k]=0; scores.family[k]=0;
   });
 
-  // 計算每個 Tag 的總分
+  // 累加分數 (排序權重)
   answers.forEach(a=>a.rankedTags.forEach((t,i)=>{
       if(scores[a.mode][t] !== undefined) {
           scores[a.mode][t] += RANK_WEIGHTS[i];
@@ -375,10 +377,7 @@ function finishCheck(isKnown){
   }));
 
   // === 🔥 類型判定演算法 🔥 ===
-  // 計算「自留 (self_reserve)」的平均排序強度
-  // 如果 self_reserve 經常排第 1 (4分) 或第 2 (3分) -> 高度自留
-  // 如果 self_reserve 經常排第 4 (1分) -> 分散安排
-  
+  // 計算「自留 (self_reserve)」的平均排序強度 (滿分4分)
   let selfReserveTotal = scores.self.self_reserve + scores.family.self_reserve;
   let totalQs = answers.length;
   let avgSelfScore = totalQs > 0 ? (selfReserveTotal / totalQs) : 0; 
@@ -388,7 +387,7 @@ function finishCheck(isKnown){
   let typeHTML = "";
 
   if(avgSelfScore >= 2.8) { 
-      // 平均在 1~2 名之間 -> 高度自留
+      // 平均在 1~2 名之間 -> 高度自留 (藍)
       typeTitle = "🟦 結果一｜高度自留型";
       typeClass = "result-type-1";
       typeHTML = `
@@ -406,7 +405,7 @@ function finishCheck(isKnown){
             <p style="text-align:left;font-size:0.9em;color:#777">適合：對自己判斷有信心、現金流管理能力不錯、不喜歡被綁住的人。</p>
         </div>`;
   } else if (avgSelfScore <= 2.2) {
-      // 平均在 3~4 名之間 -> 分散安排 (信賴系統)
+      // 平均在 3~4 名之間 -> 分散安排 (黃)
       typeTitle = "🟨 結果三｜分散安排型";
       typeClass = "result-type-3";
       typeHTML = `
@@ -424,7 +423,7 @@ function finishCheck(isKnown){
             <p style="text-align:left;font-size:0.9em;color:#777">適合：喜歡清楚規劃、不想臨場承擔太多變數的人。</p>
         </div>`;
   } else {
-      // 介於中間 -> 混合彈性
+      // 介於中間 -> 混合彈性 (綠)
       typeTitle = "🟩 結果二｜混合彈性型";
       typeClass = "result-type-2";
       typeHTML = `
@@ -456,7 +455,7 @@ function finishCheck(isKnown){
   report += `保單健檢意願：${isKnown ? "清楚既有保障" : "⚠️ 不清楚 (建議健檢)"}\n`;
   report += `------------------------\n`;
   
-  report += `【🧠 風格分析】\n${typeTitle}\n(自留分數平均: ${avgSelfScore.toFixed(1)})\n\n`;
+  report += `【🧠 風格分析】\n${typeTitle}\n(自留分數強度: ${avgSelfScore.toFixed(1)})\n\n`;
 
   report += `【📊 詳細權重排名】\n`;
   if(currentMode === "self" || currentMode === "both"){
@@ -478,7 +477,7 @@ function finishCheck(isKnown){
     })
   })
   .then(() => {
-      document.getElementById("final-message").style.display = "none"; // 隱藏讀取中
+      document.getElementById("final-message").style.display = "none";
       let resultContainer = document.getElementById("analysis-content");
       
       let html = `
