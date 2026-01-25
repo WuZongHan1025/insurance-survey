@@ -111,12 +111,19 @@ const TAG_MAP = {
   stability: "穩定/底線"
 };
 
-// 💡 險種映射邏輯 (Tag -> Product)
 const PRODUCT_MAP = {
   "self_reserve": "重大傷病 (一次金)",
   "risk_spread": "意外/壽險 (專款專用)",
   "immediate_use": "實支實付 (醫療)",
   "stability": "失能/長照 (長期穩定)"
+};
+
+// 💡 顧問策略 (無劇本，純分析)
+const STRATEGY_MAP = {
+  "self_reserve": "⭕️ 核心策略：強調「資金掌控權」。此客戶偏好靈活運用的資金，規劃應以「重大傷病（一次金）」為主，讓客戶保有選擇治療方式的自由。",
+  "risk_spread": "⭕️ 核心策略：強調「專款專用」。此客戶喜歡風險清楚分類，規劃應以「意外險/壽險」為主，建立明確的防護網。",
+  "immediate_use": "⭕️ 核心策略：強調「解決當下問題」。此客戶務實，在意發生事情時資源是否到位，規劃應以「實支實付（醫療）」為優先。",
+  "stability": "⭕️ 核心策略：強調「生活底線」。此客戶最怕生活被拖垮，規劃應以「失能/長照險」為主，確保收入中斷時的長期生活品質。"
 };
 
 // 【自我規劃】精簡 6 題
@@ -221,24 +228,20 @@ function finishCheck(isKnown){
 
   // 計算分數
   let scores={self:{}, family:{}};
-  // 初始化
   ["self_reserve","risk_spread","immediate_use","stability"].forEach(k=>{
       scores.self[k]=0; scores.family[k]=0;
   });
 
-  // 累加分數
   answers.forEach(a=>a.rankedTags.forEach((t,i)=>{
       if(scores[a.mode][t] !== undefined) {
           scores[a.mode][t] += RANK_WEIGHTS[i];
       }
   }));
 
-  // 計算平均分 (用於性格判定)
   let selfReserveTotal = scores.self.self_reserve + scores.family.self_reserve;
   let totalQs = answers.length;
   let avgSelfScore = totalQs > 0 ? (selfReserveTotal / totalQs) : 0; 
   
-  // 性格判定
   let typeTitle = "";
   let typeClass = "";
   let typeHTML = "";
@@ -254,7 +257,7 @@ function finishCheck(isKnown){
       typeHTML = `<span class="result-title" style="color:#27ae60">${typeTitle}</span><div class="result-desc"><b>你的風格是：重要的分開，其餘留彈性</b><br>你不太走極端，而是偏好：<br>👉 「關鍵事情先顧好，保留調整空間」<br><br><b>你在意的是：</b><ul class="result-list"><li>生活穩定度</li><li>彈性與安全感之間的平衡</li><li>不讓單一事件影響全部</li></ul><p style="text-align:left;font-size:0.9em;color:#777">常見於：重視生活品質、習慣分層安排事情的人。</p></div>`;
   }
 
-  // 生成後台報告 (💡 這裡新增了險種轉換邏輯)
+  // 生成報告 & 策略
   function sort(o){return Object.entries(o).sort((a,b)=>b[1]-a[1]);}
   const sortedSelf=sort(scores.self);
   const sortedFamily=sort(scores.family);
@@ -262,10 +265,17 @@ function finishCheck(isKnown){
   let report = `【🧑 客戶檔案】\n`;
   report += `姓名：${name} (${sex})\n生日：${dob}\n職業：${job}\n聯絡：${contact}\n`;
   report += `保單健檢意願：${isKnown ? "清楚" : "⚠️ 不清楚"}\n------------------------\n`;
-  
   report += `【🧠 風格分析】\n${typeTitle} (自留強度: ${avgSelfScore.toFixed(1)})\n\n`;
 
-  // 這一區會顯示： 「1. 醫療險 (實支實付): 20分」 這樣的格式
+  // 找最大痛點生成策略
+  let topTag = "";
+  if(currentMode==="self" || currentMode==="both") topTag = sortedSelf[0][0];
+  else topTag = sortedFamily[0][0];
+  
+  let strategyText = STRATEGY_MAP[topTag] || "";
+
+  report += `【💡 顧問銷售策略】\n${strategyText}\n\n`;
+
   report += `【📊 險種需求排序】\n`;
   if(currentMode === "self" || currentMode === "both"){
       report += `[自我規劃]\n` + sortedSelf.filter(s=>s[1]>0).map(s=>`🔹${PRODUCT_MAP[s[0]]}: ${s[1]}分`).join("\n") + "\n\n";
@@ -283,9 +293,29 @@ function finishCheck(isKnown){
   .then(() => {
       document.getElementById("final-message").style.display = "none";
       let resultContainer = document.getElementById("analysis-content");
-      let html = `<div style="text-align:center; margin-bottom:20px;"><h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2><p>感謝您的填寫！以下是您的分析結果，後續會有專人跟你聯繫！：</p></div><div class="result-card ${typeClass}">${typeHTML}</div>`;
-      if(!isKnown) html += `<div style="background:#fff3cd;color:#856404;padding:15px;border-radius:8px;margin-top:20px;text-align:center;"><strong>💡 貼心提醒</strong><br>建議預約保單健檢，避免重複投保！</div>`;
+      
+      let html = `
+        <div style="text-align:center; margin-bottom:20px;">
+            <h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2>
+            <p>感謝您的填寫！以下是您的分析結果，<br><b>後續會有專人與您聯繫！</b></p>
+        </div>
+        
+        <div class="result-card ${typeClass}">
+            ${typeHTML}
+        </div>
+      `;
+
+      if(!isKnown) {
+          html += `
+            <div style="background:#fff3cd;color:#856404;padding:15px;border-radius:8px;margin-top:20px;text-align:center;">
+                <strong>💡 貼心提醒</strong><br>
+                建議預約保單健檢，避免重複投保！
+            </div>
+          `;
+      }
+      
       html += `<button class="nav-btn ready" onclick="location.reload()" style="margin-top:30px">關閉</button>`;
+      
       resultContainer.innerHTML = html;
   })
   .catch(() => alert("傳送失敗，請檢查網路"));
@@ -293,4 +323,3 @@ function finishCheck(isKnown){
 </script>
 </body>
 </html>
-
