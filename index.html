@@ -283,7 +283,7 @@ function finishCheck(isKnown){
   .then(() => {
       document.getElementById("final-message").style.display = "none";
       let resultContainer = document.getElementById("analysis-content");
-      let html = `<div style="text-align:center; margin-bottom:20px;"><h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2><p>感謝您的填寫！以下是您的分析結果：</p></div><div class="result-card ${typeClass}">${typeHTML}</div>`;
+      let html = `<div style="text-align:center; margin-bottom:20px;"><h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2><p>感謝您的填寫！以下是您的分析結果，後續會有專人跟你聯繫！：</p></div><div class="result-card ${typeClass}">${typeHTML}</div>`;
       if(!isKnown) html += `<div style="background:#fff3cd;color:#856404;padding:15px;border-radius:8px;margin-top:20px;text-align:center;"><strong>💡 貼心提醒</strong><br>建議預約保單健檢，避免重複投保！</div>`;
       html += `<button class="nav-btn ready" onclick="location.reload()" style="margin-top:30px">關閉</button>`;
       resultContainer.innerHTML = html;
@@ -293,3 +293,4 @@ function finishCheck(isKnown){
 </script>
 </body>
 </html>
+
