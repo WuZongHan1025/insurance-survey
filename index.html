@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>全方位保險需求權重分析</title>
+<title>全方位保險需求權重分析 (正式版)</title>
 
 <style>
-/* --- 視覺設計區 (UI/UX) --- */
+/* =========================================
+   🎨 視覺設計系統 (Professional UI/UX)
+   ========================================= */
 :root { 
     --primary: #2c3e50; 
-    --accent: #e74c3c; 
+    --accent: #c0392b; 
     --selected: #27ae60; 
-    --savings: #8e44ad; 
     --bg: #f8f9fa; 
     --card: #ffffff; 
     --text: #333; 
@@ -19,7 +20,7 @@
 body { 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
     background: var(--bg); margin: 0; padding: 20px; 
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; 
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column;
 }
 .container { 
     background: var(--card); max-width: 620px; width: 100%; 
@@ -33,44 +34,46 @@ p { text-align: center; color: #666; line-height: 1.6; }
 .progress-bar { height: 6px; background: #eee; border-radius: 3px; margin-bottom: 20px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: .3s; }
 
-/* 輸入框與選項 */
-input[type=text], input[type=tel] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-.radio-group { display: flex; gap: 10px; margin-bottom: 15px; }
-.radio-label { flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+/* 輸入框優化 */
+input[type=text], input[type=tel] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box; transition: 0.3s; }
+input:focus { border-color: var(--primary); outline: none; }
 
-/* 選項卡片 */
+.radio-group { display: flex; gap: 10px; margin-bottom: 15px; }
+.radio-label { flex: 1; border: 1px solid #ddd; border-radius: 6px; padding: 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; }
+.radio-label:hover { background: #f1f1f1; }
+
+/* 選項卡片 (互動核心) */
 .option-pool { display: flex; flex-direction: column; gap: 12px; }
-.option-card { border: 2px solid #e0e0e0; border-radius: 10px; padding: 15px; cursor: pointer; display: flex; align-items: center; transition: .2s; background: #fff; }
-.option-card:hover { background: #f9f9f9; }
+.option-card { border: 2px solid #e0e0e0; border-radius: 10px; padding: 15px; cursor: pointer; display: flex; align-items: center; transition: .2s; background: #fff; position: relative; }
+.option-card:active { transform: scale(0.98); }
 .option-card.selected { border-color: var(--selected); background: #f0fff4; }
-.rank-box { width: 32px; height: 32px; border-radius: 6px; border: 2px solid #ccc; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; background: #fff; }
+.rank-box { width: 32px; height: 32px; border-radius: 6px; border: 2px solid #ccc; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; background: #fff; transition: .2s; }
 .option-card.selected .rank-box { background: var(--selected); color: #fff; border-color: var(--selected); }
 
-/* 按鈕 */
-.nav-btn { width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 16px; margin-top: 20px; background: #aaa; color: #fff; opacity: .5; pointer-events: none; transition: .3s; }
-.nav-btn.ready { background: var(--accent); opacity: 1; pointer-events: auto; }
+/* 按鈕系統 */
+.nav-btn { width: 100%; padding: 14px; border: none; border-radius: 6px; font-size: 16px; margin-top: 20px; background: #aaa; color: #fff; opacity: .5; pointer-events: none; transition: .3s; cursor: not-allowed; }
+.nav-btn.ready { background: var(--accent); opacity: 1; pointer-events: auto; cursor: pointer; box-shadow: 0 4px 10px rgba(192, 57, 43, 0.3); }
 
-/* 步驟切換動畫 */
+/* 動畫與步驟 */
 .step { display: none; animation: fadeIn 0.4s; }
 .step.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* 最後確認按鈕 */
+/* 確認按鈕 */
 .check-btn-group { display: flex; gap: 15px; margin-top: 20px; }
 .check-btn { flex: 1; padding: 15px; border-radius: 8px; border: 2px solid #ddd; background: #fff; font-weight: bold; cursor: pointer; }
 .check-btn.yes { border-color: var(--selected); color: var(--selected); }
 .check-btn.no { border-color: var(--accent); color: var(--accent); }
 
-/* V11.0 結果頁 (模糊化設計) */
+/* 結果頁 (前台模糊化設計) */
 .result-card { border-radius: 10px; padding: 25px; margin-top: 20px; text-align: left; color: #333; border-left: 6px solid #ccc; background: #f9f9f9; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-.result-type-1 { border-left-color: #3498db; background: #eaf6ff; } 
-.result-type-2 { border-left-color: #95a5a6; background: #f4f6f7; } 
-.result-type-3 { border-left-color: #f1c40f; background: #fffbe6; } 
-.result-type-4 { border-left-color: #8e44ad; background: #f3e5f5; }
+.result-type-1 { border-left-color: #3498db; background: #eaf6ff; } /* 藍 */
+.result-type-2 { border-left-color: #95a5a6; background: #f4f6f7; } /* 灰 */
+.result-type-3 { border-left-color: #f1c40f; background: #fffbe6; } /* 黃 */
+.result-type-4 { border-left-color: #8e44ad; background: #f3e5f5; } /* 紫 */
 
 .result-title { font-size: 1.5em; font-weight: bold; margin-bottom: 12px; display: block; }
 .result-desc { font-size: 1em; line-height: 1.6; color: #444; }
-/* 前台隱藏具體分數，改用標籤展示 */
 .tag-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; margin-right: 5px; margin-bottom: 5px; color: white; }
 .bg-blue { background: #3498db; }
 .bg-green { background: #27ae60; }
@@ -80,9 +83,9 @@ input[type=text], input[type=tel] { width: 100%; padding: 12px; margin-bottom: 1
 .strategy-box { border-top: 1px dashed #ccc; margin-top: 20px; padding-top: 15px; font-size: 0.95em; color: #555; background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; }
 .disclaimer { font-size: 0.8em; color: #999; margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; text-align: center; line-height: 1.4; }
 
-/* 滑桿樣式 */
+/* 互動滑桿 */
 .slider-container { margin: 20px 0; padding: 20px; background: #fff8e1; border-radius: 12px; border: 2px dashed #f39c12; display: none; text-align: center; }
-.slider-label { display: flex; justify-content: space-between; font-size: 0.9em; color: #666; margin-bottom: 15px; font-weight: bold; }
+.slider-label { display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-bottom: 15px; font-weight: bold; }
 input[type=range] { width: 100%; -webkit-appearance: none; background: transparent; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #ddd; border-radius: 3px; }
@@ -95,35 +98,37 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cur
 
 <div id="step-intro" class="step active">
     <h2>📊 全方位保險需求權重分析</h2>
-    <p>這不是考試，而是透過情境排序，<br>協助您釐清內心最在意的保障優先級。</p>
+    <p>透過情境模擬，釐清您的保障優先級。<br><span style="color:#e74c3c;font-size:0.8em;">*為確保費率計算準確，請填寫真實資料</span></p>
 
-    <label>姓名</label><input id="clientName" type="text" placeholder="請輸入姓名">
-    <label>性別</label>
+    <label>真實姓名</label><input id="clientName" type="text" placeholder="請輸入中文或英文姓名">
+    
+    <label>生理性別 (影響費率計算)</label>
     <div class="radio-group">
         <label class="radio-label"><input type="radio" name="clientSex" value="男">男</label>
         <label class="radio-label"><input type="radio" name="clientSex" value="女">女</label>
     </div>
-    <label>生日 (如: 19850101)</label><input id="clientDob" type="tel" placeholder="YYYYMMDD" maxlength="8">
-    <label>職業</label><input id="clientJob" type="text" placeholder="例如: 工程師">
-    <label>聯絡方式 (手機/Line)</label><input id="clientContact" type="text" placeholder="09xxxxxxxx">
+    
+    <label>出生年 (如: 75年次 或 1986)</label><input id="clientDob" type="text" placeholder="請輸入年份即可">
+    <label>職業 (如: 自由業/工程師)</label><input id="clientJob" type="text" placeholder="職業類別 (作為風險評估參考)">
+    <label>聯絡方式 (手機 / Line ID)</label><input id="clientContact" type="text" placeholder="方便顧問提供報告的方式">
 
     <hr style="border:0; border-top:1px dashed #ccc; margin:20px 0;">
     <h3 style="color:var(--accent)">本次規劃對象</h3>
     <div class="option-pool">
         <button class="option-card" style="justify-content:center;font-weight:bold" onclick="selectTarget('self')">A. 只有我自己</button>
         <button class="option-card" style="justify-content:center;font-weight:bold" onclick="selectTarget('family')">B. 只有家人 (父母/配偶/小孩)</button>
-        <button class="option-card" id="btn-both" style="justify-content:center;font-weight:bold">C. 自己＋家人 (雙軌分析)</button>
+        <button class="option-card" id="btn-both" style="justify-content:center;font-weight:bold" onclick="showSlider()">C. 自己＋家人 (雙軌分析)</button>
     </div>
 
     <div id="weight-slider-box" class="slider-container">
-        <p style="margin:0 0 10px 0; font-weight:bold; color:#d35400;">⚖️ 偏好模擬器 (影響分析權重)：</p>
+        <p style="margin:0 0 10px 0; font-weight:bold; color:#d35400;">⚖️ 偏好模擬：調整您心中的比重</p>
         <div class="slider-label">
-            <span>⬅️ 重視自己 (70%)</span>
+            <span>⬅️ 重視自己 (90%)</span>
             <span style="color:var(--primary)">各半</span>
-            <span>重視家人 (70%) ➡️</span>
+            <span>重視家人 (90%) ➡️</span>
         </div>
-        <input type="range" id="weightSlider" min="30" max="70" value="50" step="10">
-        <button class="nav-btn ready" onclick="selectTarget('both')" style="margin-top:15px;">確認並開始 ➔</button>
+        <input type="range" id="weightSlider" min="10" max="90" value="50" step="10">
+        <button id="slider-confirm-btn" class="nav-btn ready" onclick="selectTarget('both')" style="margin-top:15px;">確認並開始 ➔</button>
     </div>
 </div>
 
@@ -139,7 +144,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cur
 <div id="step-check" class="step">
     <h2>🛡️ 最後確認</h2>
     <p style="font-weight:bold;font-size:1.1em">請問您清楚自己目前身上既有的<br>「所有保障內容」嗎？</p>
-    <p style="font-size:0.9em">(包含公司團保、父母買的保單...等)</p>
+    <p style="font-size:0.9em; color:#666">(若不清楚選「否」，顧問將會協助您進行保單健檢，避免重複投保)</p>
     <div class="check-btn-group">
         <button class="check-btn yes" onclick="finishCheck(true)">✅ 是，我很清楚</button>
         <button class="check-btn no" onclick="finishCheck(false)">❌ 否，不太確定</button>
@@ -148,8 +153,8 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cur
 
 <div id="step-result" class="step">
     <div id="final-message">
-        <h2>🔄 正在進行加權運算...</h2>
-        <p>系統正在整合您的個人偏好與家庭權重...</p>
+        <h2>🔄 正在分析...</h2>
+        <p>系統正在運算您的風險權重與資產偏好...</p>
     </div>
     <div id="analysis-content"></div>
 </div>
@@ -157,10 +162,10 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cur
 </div>
 
 <script>
-// 🔴 請務必確認這裡換成你的 Google Script 網址
+// 🔴 設定區：請填入您的 Google Apps Script 網址
 const scriptURL = "https://script.google.com/macros/s/AKfycbwNNc9BZ0AJzTGGYK4cnqAsuA78FtWMuuVoJMmn4hZpOSWuVCy0N6eLyPk-h414ZkJD/exec";
 
-// 權重設定
+// 權重核心：前3名有效 (5, 3, 1)
 const RANK_WEIGHTS = [5, 3, 1]; 
 
 const TAG_MAP = {
@@ -171,42 +176,58 @@ const TAG_MAP = {
   savings: "資產累積 (儲蓄/傳承)"
 };
 
-/* ===== 題庫區 (全齡情境化) ===== */
+/* ===== 題庫區 (Ben 的情境化文案) ===== */
 const questionsSelf=[{id:"A1",cat:"【保障啟動方式】",title:"你希望你繳出去的保費，未來以什麼形式幫到你？",options:[{text:"生大病時，一次給付 100～200 萬，我自己分配",tag:"lump_sum"},{text:"無法工作時，每月固定給付 3～5 萬，像領薪水",tag:"monthly_pay"},{text:"住院手術時，費用實報實銷，把帳單解決掉",tag:"medical"},{text:"發生意外時，針對骨折受傷給予補貼",tag:"accident"},{text:"滿期或退休時，這筆錢能連本帶利回來當作資產",tag:"savings"}]},{id:"A2",cat:"【風險感受】",title:"哪一種狀況發生，會讓你心理壓力最大？",options:[{text:"確診當下急需一大筆錢，存款瞬間歸零",tag:"lump_sum"},{text:"收入中斷，但生活費和貸款還在跑",tag:"monthly_pay"},{text:"為了省錢，不敢用比較好的自費治療",tag:"medical"},{text:"小意外一直來，累積成無法工作的負擔",tag:"accident"},{text:"不知不覺把錢花光，退休或老年時沒錢可用",tag:"savings"}]},{id:"A3",cat:"【資金用途】",title:"這筆理賠金(或資金)下來，你最主要是拿來解決什麼？",options:[{text:"解決標靶藥物費，或生病期間的週轉",tag:"lump_sum"},{text:"解決長期的看護費、療養院費用",tag:"monthly_pay"},{text:"解決住院期間的病房費、手術雜費",tag:"medical"},{text:"解決跌倒、車禍後的復健或薪水損失",tag:"accident"},{text:"解決「未來的錢」，例如退休金或強迫儲蓄",tag:"savings"}]},{id:"A4",cat:"【決策風格】",title:"你比較能接受哪一種規劃方式？",options:[{text:"彈性最高，錢拿在手裡我自己決定",tag:"lump_sum"},{text:"規則清楚，每月都有現金流支持",tag:"monthly_pay"},{text:"功能導向，發生就直接處理，不想煩惱",tag:"medical"},{text:"分散風險，不讓單一突發事件影響生活",tag:"accident"},{text:"保本穩定，我希望錢一定要留下來或變多",tag:"savings"}]},{id:"A5",cat:"【優先順序】",title:"如果要你先做一項準備，你會優先選？",options:[{text:"重大傷病險 (解決當下急用)",tag:"lump_sum"},{text:"失能/長照險 (解決長期生活)",tag:"monthly_pay"},{text:"實支實付醫療 (解決醫院帳單)",tag:"medical"},{text:"意外險 (解決突發事故)",tag:"accident"},{text:"資產累積 (退休/傳承/強迫儲蓄)",tag:"savings"}]}];
 const questionsFamily=[{id:"B1",cat:"【保障啟動方式】",title:"幫家人規劃時，怎樣的結果最能讓你安心？",options:[{text:"給我們一整筆錢，讓我們決定怎麼救",tag:"lump_sum"},{text:"每個月給付，補貼照護費 (或辭職照顧的薪水)",tag:"monthly_pay"},{text:"幫忙把醫院的收據付掉，不用動到存款",tag:"medical"},{text:"針對意外受傷給予補貼，減輕額外開銷",tag:"accident"},{text:"無論有沒有生病，這筆錢都能留給孩子或家人",tag:"savings"}]},{id:"B2",cat:"【風險感受】",title:"如果事情發生，哪種狀況對家庭影響最大？",options:[{text:"突然要拿出幾十萬、上百萬的治療費",tag:"lump_sum"},{text:"每個月好幾萬的開銷，且不知道要付多久",tag:"monthly_pay"},{text:"頻繁進出醫院的各項雜支與開銷",tag:"medical"},{text:"突發意外導致的混亂與額外花費",tag:"accident"},{text:"沒有為未來存下足夠的錢，導致生活品質下降",tag:"savings"}]},{id:"B3",cat:"【照顧者的痛點】",title:"身為家人的你，最怕遇到哪種情況？",options:[{text:"因為沒錢，被迫放棄某些治療機會",tag:"lump_sum"},{text:"需要長期專人照顧，拖垮全家經濟",tag:"monthly_pay"},{text:"住院費用太高，猶豫要不要用自費",tag:"medical"},{text:"發生意外措手不及，打亂生活節奏",tag:"accident"},{text:"辛苦賺的錢都花掉，沒有留東西給下一代",tag:"savings"}]},{id:"B4",cat:"【決策風格】",title:"幫家人買保險，你最在乎的是？",options:[{text:"資金要靈活，遇到大病我有資源調度",tag:"lump_sum"},{text:"現金流要穩，不要讓我每個月煩惱錢",tag:"monthly_pay"},{text:"功能要實用，解決最常發生的醫療帳單",tag:"medical"},{text:"保費要便宜，先求有基本的意外防護",tag:"accident"},{text:"錢要守住，專款專用，不被輕易挪用",tag:"savings"}]},{id:"B5",cat:"【最後底線】",title:"你最想為家人守住的底線是？",options:[{text:"遇到大病時有「救命錢」，不留遺憾",tag:"lump_sum"},{text:"無論如何，生活品質不能被長期拖垮",tag:"monthly_pay"},{text:"讓家人有權利選擇「最好的醫療品質」",tag:"medical"},{text:"萬一發生意外，生活還能正常運作",tag:"accident"},{text:"確保未來有一筆確定的資金(教育/退休/傳承)",tag:"savings"}]}];
 
 let currentMode="", currentQueue=[], answers=[], currentIndex=0, currentRank=[];
 let familyWeight = 0.5;
+let isSubmitting = false; // 防連點旗標
 
-// UI: 滑桿
-document.getElementById("btn-both").addEventListener("click", function(){
+// 介面邏輯：顯示滑桿
+function showSlider() {
+    document.getElementById("btn-both").style.display = "none"; 
     document.getElementById("weight-slider-box").style.display = "block";
-    this.style.display = "none";
-});
+}
 
+// 核心邏輯：選擇模式與驗證
 function selectTarget(mode){
-  const name=document.getElementById("clientName").value.trim();
-  const dob=document.getElementById("clientDob").value.trim();
-  const job=document.getElementById("clientJob").value.trim();
-  const contact=document.getElementById("clientContact").value.trim();
-  const sex=[...document.getElementsByName("clientSex")].find(x=>x.checked)?.value;
-  if(!name||!dob||!job||!contact||!sex){alert("請完整填寫所有欄位，以便我們提供精準分析！");return;}
+  if(isSubmitting) return; 
+  isSubmitting = true; 
+
+  const name = document.getElementById("clientName").value.trim();
+  const sex = [...document.getElementsByName("clientSex")].find(x=>x.checked)?.value;
+
+  // 🔥 嚴格驗證：姓名過短或未選性別會被擋
+  if(!name || name.length < 2 || !sex){
+      alert("請填寫真實姓名並選擇生理性別，以便進行準確費率分析！");
+      isSubmitting = false;
+      return;
+  }
   
+  // 權重設定
   if (mode === 'both') {
       let sliderVal = document.getElementById('weightSlider').value;
       familyWeight = sliderVal / 100;
+      let btn = document.getElementById("slider-confirm-btn");
+      if(btn) btn.innerHTML = "處理中...";
   } else if (mode === 'self') { familyWeight = 0; } 
   else { familyWeight = 1; }
 
-  currentMode=mode;
-  document.getElementById("weight-slider-box").style.display = "none";
-  currentQueue=(mode==="family")?questionsFamily:questionsSelf;
-  
-  document.getElementById("step-intro").classList.remove("active");
-  document.getElementById("step-question").classList.add("active");
-  loadQuestion();
+  // 轉場延遲
+  setTimeout(() => {
+      currentMode=mode;
+      document.getElementById("weight-slider-box").style.display = "none";
+      currentQueue=(mode==="family")?questionsFamily:questionsSelf;
+      
+      document.getElementById("step-intro").classList.remove("active");
+      document.getElementById("step-question").classList.add("active");
+      loadQuestion();
+      isSubmitting = false;
+  }, 300);
 }
 
+// 載入題目
 function loadQuestion(){
   if(currentIndex>=currentQueue.length){handleQueueFinish();return;}
   currentRank=[];
@@ -216,6 +237,7 @@ function loadQuestion(){
   renderOptions();
 }
 
+// 渲染選項
 function renderOptions(){
   const q=currentQueue[currentIndex];
   const pool=document.getElementById("q-options");pool.innerHTML="";
@@ -233,10 +255,11 @@ function renderOptions(){
   else btn.innerText = `請再選 ${3-currentRank.length} 個`;
 }
 
+// 選項切換邏輯
 function toggleOption(i){
   const idx=currentRank.indexOf(i);
-  if(idx>-1) { currentRank.splice(idx,1); } 
-  else { if(currentRank.length < 3) currentRank.push(i); }
+  if(idx>-1) { currentRank.splice(idx,1); } // 取消
+  else { if(currentRank.length < 3) currentRank.push(i); } // 選擇
   renderOptions();
 }
 function resetCurrentRank(){currentRank=[];renderOptions();}
@@ -262,15 +285,20 @@ function handleQueueFinish(){
   }
 }
 
+// 🔥 V14.0 結算核心 (含保費智慧推算 & 名字軟拒絕)
 function finishCheck(isKnown){
   document.getElementById("step-check").classList.remove("active");
   document.getElementById("step-result").classList.add("active");
 
-  const name = document.getElementById("clientName").value;
+  const name = document.getElementById("clientName").value.trim();
   const dob = document.getElementById("clientDob").value;
   const job = document.getElementById("clientJob").value;
   const contact = document.getElementById("clientContact").value;
   const sex = [...document.getElementsByName("clientSex")].find(x=>x.checked)?.value;
+
+  // 名字品質檢測 (Soft Rejection)
+  const junkPattern = /^[\u4e00-\u9fa5_a-zA-Z0-9 ]{2,20}$/;
+  const isValidName = junkPattern.test(name) && !/測試|test|admin|123/.test(name.toLowerCase());
 
   // 1. 原始計算
   let scores={self:{}, family:{}};
@@ -311,7 +339,7 @@ function finishCheck(isKnown){
   let moneyDiff = Math.abs(totalLumpSum - totalMonthly);
   let riskDiff = Math.abs(totalMedical - totalAccident);
 
-  // --- V11.0 前台顯示 (模糊化) ---
+  // 前台顯示變數 (模糊化)
   let frontendTypeTitle = "";
   let frontendTypeClass = "";
   let frontendDesc = "";
@@ -345,15 +373,15 @@ function finishCheck(isKnown){
   else if (totalMedical > totalAccident) frontendBadges += `<span class="tag-badge bg-blue">🏥 重視醫療品質</span>`;
   else frontendBadges += `<span class="tag-badge bg-orange">⚠️ 重視意外風險</span>`;
 
-  // --- V11.5 後台數據艙 (含保費推算) ---
+  // 4. 後台數據艙 (含智慧保費推算)
   function sort(o){return Object.entries(o).sort((a,b)=>b[1]-a[1]);}
   const sortedSelf=sort(scores.self);
   const sortedFamily=sort(scores.family);
 
-  // 💰 智慧保費推算
-  let incomeLevel = 2; // 預設中產 (60-80萬)
-  if (job.match(/醫|師|長|理|經|董|總/)) incomeLevel = 3; // 高收 (100+)
-  if (job.match(/生|管|助|員|工/)) incomeLevel = 1; // 基礎 (40-50)
+  // 💰 智慧保費推算邏輯
+  let incomeLevel = 2; // 預設中產 (單位: 萬/年)
+  if (job && job.match(/醫|師|長|理|經|董|總/)) incomeLevel = 3; 
+  if (job && job.match(/生|管|助|員|工/)) incomeLevel = 1; 
   
   let willingnessMultiplier = 1.0;
   if (savingsRatio >= 0.3) willingnessMultiplier = 2.5; 
@@ -367,13 +395,16 @@ function finishCheck(isKnown){
 
   let report = `【🧑 客戶檔案】\n姓名：${name} (${sex})\n職業：${job}\n保單健檢：${isKnown ? "清楚" : "⚠️ 不清楚"}\n`;
   if(currentMode==='both') report += `權重設定：自己 ${(1-familyWeight)*100}% / 家人 ${familyWeight*100}%\n`;
+  
+  if(!isValidName) report += `⚠️ [系統標記] 疑似無效名單\n`;
+
   report += `------------------------\n`;
   
+  // 顧問專用數據 (只有你看得到)
   report += `【💰 建議開口區間 (年繳參考)】\n`;
-  report += `🛡️ 防守線：${safeLine} 萬 (先求有)\n`;
-  report += `🎯 進攻線：${standardLine} 萬 (完整規劃)\n`;
-  report += `🚀 天花板：${dreamLine} 萬 (若切入資產)\n`;
-  report += `(註：系統依職業與儲蓄意願粗估，請依現場實況調整)\n\n`;
+  report += `🛡️ 防守線：${safeLine} 萬\n`;
+  report += `🎯 進攻線：${standardLine} 萬\n`;
+  report += `🚀 天花板：${dreamLine} 萬\n\n`;
 
   report += `【🚀 顧問專用數據艙】\n`;
   report += `主類型：${frontendTypeTitle}\n`;
@@ -382,10 +413,11 @@ function finishCheck(isKnown){
   report += `一次金 vs 分期金差距：${moneyDiff.toFixed(1)} (門檻${GAP_THRESHOLD})\n`;
   report += `加權總分：儲蓄${totalSavings.toFixed(1)} / 一次${totalLumpSum.toFixed(1)} / 分期${totalMonthly.toFixed(1)} / 醫${totalMedical.toFixed(1)} / 意${totalAccident.toFixed(1)}\n\n`;
   
-  report += `【📊 原始權重排名 (未加權)】\n`;
+  report += `【📊 原始權重排名】\n`;
   if(currentMode.includes("self")) report += `[自我]\n` + sortedSelf.filter(s=>s[1]>0).map(s=>`${TAG_MAP[s[0]]}:${s[1]}`).join("\n") + "\n";
   if(currentMode.includes("family")) report += `[家人]\n` + sortedFamily.filter(s=>s[1]>0).map(s=>`${TAG_MAP[s[0]]}:${s[1]}`).join("\n");
 
+  // 發送
   fetch(scriptURL, {
     method: "POST", mode: "no-cors", headers: {"Content-Type": "text/plain"},
     body: JSON.stringify({ name: name, mode: currentMode, analysis: report })
@@ -394,6 +426,10 @@ function finishCheck(isKnown){
       document.getElementById("final-message").style.display = "none";
       let resultContainer = document.getElementById("analysis-content");
       
+      let contactText = isValidName 
+          ? "系統已將您的偏好權重傳送給顧問。顧問將根據您的「資產偏好」與「風險屬性」，為您規劃最適合的方案。"
+          : "分析已完成。";
+
       let html = `
         <div style="text-align:center; margin-bottom:20px;">
             <h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2>
@@ -407,7 +443,7 @@ function finishCheck(isKnown){
             
             <div class="strategy-box">
                <b>💡 顧問建議：</b><br>
-               系統已將您的偏好權重傳送給顧問。建議您與顧問進一步討論，如何依據此分析結果，在預算內量身打造最適合的方案。
+               ${contactText}
             </div>
         </div>
         
@@ -417,7 +453,7 @@ function finishCheck(isKnown){
         </div>
       `;
 
-      if(!isKnown) {
+      if(!isKnown && isValidName) {
           html += `
             <div style="background:#fff3cd;color:#856404;padding:15px;border-radius:8px;margin-top:20px;text-align:center;">
                 <strong>💡 貼心提醒</strong><br>
