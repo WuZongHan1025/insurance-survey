@@ -123,7 +123,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cur
 
     <label>真實姓名</label><input id="clientName" type="text" placeholder="請輸入中文或英文姓名">
     
-    <label>生理性別 (影響費率計算)</label>
+    <label>生理性別 </label>
     <div class="radio-group">
         <label class="radio-label"><input type="radio" name="clientSex" value="男">男</label>
         <label class="radio-label"><input type="radio" name="clientSex" value="女">女</label>
@@ -178,7 +178,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cur
 
 <div id="step-check" class="step">
     <h2>🛡️ 最後確認</h2>
-    <p style="font-weight:bold;font-size:1.1em">請問您清楚自己目前身上既有的<br>「所有保障內容」嗎？</p>
+    <p style="font-weight:bold;font-size:1.1em">請問您清楚自己目前身上有的<br>「所有保單內容」嗎？</p>
     <p style="font-size:0.9em; color:#666">(若不清楚選「否」，顧問將會協助您進行保單健檢)</p>
     <div class="check-btn-group">
         <button class="check-btn yes" onclick="finishCheck(true)">✅ 是，我很清楚</button>
@@ -233,12 +233,12 @@ const questionsUnifiedPK = [
     // 1-5 題：基本保障觀
     {cat:"【情境抉擇 1/10】", title:"如果只能選一個，您比較在意？", options:[{text:"解決「意外受傷」的突發開銷",tag:"accident", desc:"(如骨折、車禍)"}, {text:"解決「生病住院」的醫療帳單",tag:"medical", desc:"(如手術、雜費)"}]},
     {cat:"【情境抉擇 2/10】", title:"當需要長期休養時，您希望？", options:[{text:"拿到一整筆錢，自己調度",tag:"lump_sum", desc:"(彈性高)"}, {text:"每個月有固定生活費入帳",tag:"monthly_pay", desc:"(細水長流)"}]},
-    {cat:"【情境抉擇 3/10】", title:"關於金錢運用，您的原則是？", options:[{text:"把錢存下來，累積成資產",tag:"savings", desc:"(保本增值)"}, {text:"把錢花在最好的醫療品質",tag:"medical", desc:"(享受當下)"}]},
+    {cat:"【情境抉擇 3/10】", title:"關於金錢運用，您的原則是？", options:[{text:"把錢存下來，累積成資產",tag:"savings", desc:"(保本增值)"}, {text:"把錢花在自己想花的地方",tag:"medical", desc:"(享受當下)"}]},
     {cat:"【情境抉擇 4/10】", title:"您比較擔心家裡發生？", options:[{text:"有人(包含自己)因病倒下，收入中斷",tag:"monthly_pay", desc:"(長期抗戰)"}, {text:"突然需要籌措百萬手術費",tag:"lump_sum", desc:"(短期重擊)"}]},
     {cat:"【情境抉擇 5/10】", title:"對於未來，您更想確保？", options:[{text:"退休金或傳承金準備好了",tag:"savings", desc:"(確定性)"}, {text:"發生意外時不會拖累家人",tag:"accident", desc:"(防護網)"}]},
     
     // 6-10 題：進階價值觀
-    {cat:"【情境抉擇 6/10】", title:"如果保費預算有限，優先砍掉？", options:[{text:"儲蓄投資 (先顧保障)",tag:"medical", desc:"(保留醫療)"}, {text:"醫療保障 (先顧存錢)",tag:"savings", desc:"(保留儲蓄)"}]},
+    {cat:"【情境抉擇 6/10】", title:"如果保費預算有限，優先保留？", options:[{text:"儲蓄投資",tag:"savings", desc:"(金錢規劃)"}, {text:"醫療保障",tag:"medical", desc:"(風險管理)"}]},
     {cat:"【情境抉擇 7/10】", title:"面對無法工作的風險，您偏好？", options:[{text:"一次拿走 200 萬",tag:"lump_sum", desc:"(落袋為安)"}, {text:"每個月拿 3 萬領 10 年",tag:"monthly_pay", desc:"(總額較多)"}]},
     {cat:"【情境抉擇 8/10】", title:"您認為保險最該解決的是？", options:[{text:"機率高、金額小的(門診/意外)",tag:"accident", desc:"(常用)"}, {text:"機率低、金額大的(癌症/失能)",tag:"lump_sum", desc:"(救命)"}]},
     {cat:"【情境抉擇 9/10】", title:"關於家人的保障，您更在意？", options:[{text:"不要讓一個人的病拖垮全家",tag:"monthly_pay", desc:"(避免負債)"}, {text:"讓家人有錢接受最好治療",tag:"medical", desc:"(醫療人權)"}]},
@@ -491,7 +491,7 @@ function finishCheck(isKnown){
       document.getElementById("final-message").style.display = "none";
       let resultContainer = document.getElementById("analysis-content");
       let contactText = isValidName ? "系統已將您的偏好權重傳送給顧問。顧問將根據您的「資產偏好」與「風險屬性」，為您規劃最適合的方案。" : "分析已完成。";
-      let html = `<div style="text-align:center; margin-bottom:20px;"><h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2><p>感謝您的填寫！以下是您的分析結果：</p></div><div class="result-card ${frontendTypeClass}"><span class="result-title" style="color:var(--primary)">${frontendTypeTitle}</span><div style="margin-bottom:15px;">${frontendBadges}</div><div class="result-desc">${frontendDesc}</div><div class="strategy-box"><b>💡 顧問建議：</b><br>${contactText}</div></div><div class="disclaimer">本分析結果僅供保險需求偏好參考，不代表您的保障已足夠或不足。<br>實際規劃仍需考量您的年齡、預算及既有保障內容。</div>`;
+      let html = `<div style="text-align:center; margin-bottom:20px;"><h2 style="color: #27ae60; margin:0;">✅ 分析完成</h2><p>感謝您的填寫！以下是您的分析結果：</p></div><div class="result-card ${frontendTypeClass}"><span class="result-title" style="color:var(--primary)">${frontendTypeTitle}</span><div style="margin-bottom:15px;">${frontendBadges}</div><div class="result-desc">${frontendDesc}</div><div class="strategy-box"><b>💡 顧問建議：</b><br>${contactText}</div></div><div class="disclaimer">溫馨小提醒：此分析結果僅供保險需求偏好參考，每種種類建議均衡規劃因為無法確認所有風險都是0%。<br>但實際規劃仍需考量您的年齡、預算及既有保障內容。</div>`;
       if(!isKnown && isValidName) html += `<div style="background:#fff3cd;color:#856404;padding:15px;border-radius:8px;margin-top:20px;text-align:center;"><strong>💡 貼心提醒</strong><br>建議預約保單健檢，避免重複投保！</div>`;
       html += `<button class="nav-btn ready" onclick="location.reload()" style="margin-top:30px">關閉</button>`;
       resultContainer.innerHTML = html;
@@ -501,4 +501,5 @@ function finishCheck(isKnown){
 </script>
 </body>
 </html>
+
 
